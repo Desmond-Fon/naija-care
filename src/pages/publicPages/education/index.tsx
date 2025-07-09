@@ -80,7 +80,7 @@ const Education = () => {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 md:px-8 py-16 space-y-16">
+      <main className="max-w-6xl mx-auto px-4 md:px-8 py-16 space-y-16">
         {/* Health Education Title */}
         <section className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Health Education</h1>
@@ -89,7 +89,7 @@ const Education = () => {
 
         {/* Education Resources Grid */}
         <section>
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {resources.map((res, idx) => (
               <div key={idx} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col">
                 <div className="flex items-center gap-3 mb-3">

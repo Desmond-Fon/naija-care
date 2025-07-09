@@ -6,8 +6,8 @@ import Contact from "./pages/publicPages/contact";
 import Telemedicine from "./pages/admin/user/telemedics";
 import FindCare from "./pages/publicPages/find-care";
 import AuthLayout from "./layout/AuthLayout";
-import { LogIn } from "lucide-react";
 import Education from "./pages/publicPages/education";
+import Login from "./pages/auth/login";
 
 function App() {
   return (
@@ -23,7 +23,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
           </Route>
           <Route path="/auth" element={<AuthLayout />}>
-            <Route path="login" element={<LogIn />} />
+            <Route path="login" element={<Login />} />
           </Route>
         </Routes>
       </BrowserRouter>

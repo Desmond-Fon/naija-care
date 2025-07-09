@@ -25,7 +25,7 @@ export const Navbar = ({
     // { label: "Wallet", href: "/wallet" },
     { label: "Education", href: "/health-education" },
     { label: "Support", href: "/contact" },
-    { label: "Login", href: "/auth" },
+    { label: "Login", href: "/auth/login" },
   ];
 
   // Language names for selector
