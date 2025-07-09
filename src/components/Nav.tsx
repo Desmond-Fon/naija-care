@@ -90,13 +90,13 @@ export const Navbar = ({
         <ul className="flex flex-col gap-4 text-white font-medium text-base absolute top-full left-0 w-full bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 rounded-b-2xl shadow-lg z-50 p-6 lg:hidden animate-fade-in">
           {navItems.map((item) => (
             <li key={item.href}>
-              <a
-                href={item.href}
+              <Link
+                to={item.href}
                 className="block py-2 px-4 rounded hover:bg-blue-500/20 transition-colors duration-200"
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
