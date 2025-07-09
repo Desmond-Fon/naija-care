@@ -155,7 +155,7 @@ const FindCare = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient background */}
-      <header className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 sticky top-0 z-50">
+      <header className="gradient-bg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             <Navbar lang={lang} setLang={setLang} />
@@ -166,8 +166,12 @@ const FindCare = () => {
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-16 space-y-12">
         {/* Find Care Title */}
         <section className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Find a Hospital or Clinic</h1>
-          <p className="text-lg text-gray-600">Search for hospitals or clinics near you and register in person.</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            Find a Hospital or Clinic
+          </h1>
+          <p className="text-lg text-gray-600">
+            Search for hospitals or clinics near you and register in person.
+          </p>
         </section>
 
         {/* Search/Filter & Locate Section */}
@@ -178,7 +182,7 @@ const FindCare = () => {
               className="w-full rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
               placeholder="Search by city, state, or hospital name..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
             />
             <Search className="w-6 h-6 text-blue-600" />
           </div>
@@ -189,32 +193,64 @@ const FindCare = () => {
             <LocateFixed className="w-5 h-5" /> Find Nearest
           </button>
         </section>
-        {geoError && <div className="text-red-600 text-center mb-4">{geoError}</div>}
+        {geoError && (
+          <div className="text-red-600 text-center mb-4">{geoError}</div>
+        )}
 
         {/* Hospitals List Section */}
         <section>
           <div className="grid md:grid-cols-3 gap-8">
             {sorted.length === 0 ? (
-              <div className="col-span-2 text-center text-gray-500">No hospitals or clinics found.</div>
+              <div className="col-span-2 text-center text-gray-500">
+                No hospitals or clinics found.
+              </div>
             ) : (
               sorted.map((h, idx) => (
-                <div key={idx} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col">
+                <div
+                  key={idx}
+                  className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col"
+                >
                   <div className="flex items-center gap-3 mb-2">
                     <Hospital className="w-7 h-7 text-blue-600" />
-                    <span className="text-lg font-semibold text-gray-800">{h.name}</span>
+                    <span className="text-lg font-semibold text-gray-800">
+                      {h.name}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600 mb-1">
                     <MapPin className="w-5 h-5" />
                     <span>{h.address}</span>
                   </div>
-                  <div className="text-sm text-gray-500 mb-2">{h.city}, {h.state}</div>
-                  <div className="text-sm text-gray-700 mb-2">Type: {h.type}</div>
-                  <div className="text-sm text-gray-700 mb-2">Phone: <a href={`tel:${h.phone}`} className="text-blue-600 underline">{h.phone}</a></div>
+                  <div className="text-sm text-gray-500 mb-2">
+                    {h.city}, {h.state}
+                  </div>
+                  <div className="text-sm text-gray-700 mb-2">
+                    Type: {h.type}
+                  </div>
+                  <div className="text-sm text-gray-700 mb-2">
+                    Phone:{" "}
+                    <a
+                      href={`tel:${h.phone}`}
+                      className="text-blue-600 underline"
+                    >
+                      {h.phone}
+                    </a>
+                  </div>
                   {userLoc && (
-                    <div className="text-xs text-gray-500 mb-2">Distance: {getDistance(userLoc.lat, userLoc.lng, h.lat, h.lng).toFixed(1)} km</div>
+                    <div className="text-xs text-gray-500 mb-2">
+                      Distance:{" "}
+                      {getDistance(
+                        userLoc.lat,
+                        userLoc.lng,
+                        h.lat,
+                        h.lng
+                      ).toFixed(1)}{" "}
+                      km
+                    </div>
                   )}
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(h.address)}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      h.address
+                    )}`}
                     className="mt-auto inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full font-semibold transition-all duration-200 shadow-lg"
                     target="_blank"
                     rel="noopener noreferrer"

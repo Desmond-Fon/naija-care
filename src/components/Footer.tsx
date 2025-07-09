@@ -10,7 +10,7 @@ export const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-2">
-            <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            <h3 className="text-2xl font-bold mb-4 bg-blue-400 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
               NaijaCare
             </h3>
             <p className="text-gray-400 mb-6 max-w-md">

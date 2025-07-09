@@ -72,7 +72,7 @@ const Education = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient background */}
-      <header className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 sticky top-0 z-50">
+      <header className="gradient-bg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             <Navbar lang={lang} setLang={setLang} />
@@ -83,27 +83,41 @@ const Education = () => {
       <main className="max-w-6xl mx-auto px-4 md:px-8 py-16 space-y-16">
         {/* Health Education Title */}
         <section className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Health Education</h1>
-          <p className="text-lg text-gray-600">Simple health articles and videos in your language. Access some resources offline!</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            Health Education
+          </h1>
+          <p className="text-lg text-gray-600">
+            Simple health articles and videos in your language. Access some
+            resources offline!
+          </p>
         </section>
 
         {/* Education Resources Grid */}
         <section>
           <div className="grid md:grid-cols-3 gap-8">
             {resources.map((res, idx) => (
-              <div key={idx} className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col">
+              <div
+                key={idx}
+                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col"
+              >
                 <div className="flex items-center gap-3 mb-3">
                   {res.type === "article" ? (
                     <BookOpen className="w-7 h-7 text-blue-600" />
                   ) : (
                     <Video className="w-7 h-7 text-purple-600" />
                   )}
-                  <span className="text-sm font-semibold px-2 py-1 rounded bg-blue-50 text-blue-700 uppercase">{res.lang}</span>
+                  <span className="text-sm font-semibold px-2 py-1 rounded bg-blue-50 text-blue-700 uppercase">
+                    {res.lang}
+                  </span>
                   {res.offline && (
-                    <span className="flex items-center gap-1 text-xs text-green-600 ml-2"><DownloadCloud className="w-4 h-4" /> Offline</span>
+                    <span className="flex items-center gap-1 text-xs text-green-600 ml-2">
+                      <DownloadCloud className="w-4 h-4" /> Offline
+                    </span>
                   )}
                 </div>
-                <h2 className="text-xl font-bold text-gray-800 mb-1">{res.title}</h2>
+                <h2 className="text-xl font-bold text-gray-800 mb-1">
+                  {res.title}
+                </h2>
                 <p className="text-gray-700 mb-4">{res.description}</p>
                 <a
                   href={res.link}

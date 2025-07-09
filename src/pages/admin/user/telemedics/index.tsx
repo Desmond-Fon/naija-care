@@ -25,7 +25,7 @@ const Telemedicine = () => {
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header with gradient background */}
-        <header className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 sticky top-0 z-50">
+        <header className="gradient-bg sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
             <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
               <Navbar lang={lang} setLang={setLang} />

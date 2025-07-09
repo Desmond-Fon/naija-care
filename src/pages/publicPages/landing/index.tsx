@@ -41,7 +41,7 @@ const Hero = ({ t }: { t: Translation }) => (
       className="relative text-center py-20 px-4 overflow-hidden"
     >
       {/* Background gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-700 to-purple-800 z-0 opacity-90"></div>
+      <div className="absolute inset-0 gradient-bg z-0 opacity-90"></div>
       <div
         className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] z-0 opacity-60`}
       ></div>
@@ -88,7 +88,7 @@ const FeatureCard = ({
   description: string;
 }) => (
   <div className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 flex flex-col items-center">
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+    <div className="feature-bg w-12 h-12 rounded-xl flex items-center justify-center mb-4">
       <Icon className="w-6 h-6 text-white" />
     </div>
     <h3 className="text-xl font-semibold text-gray-800 mb-2">{description}</h3>
@@ -140,7 +140,7 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient background */}
-      <header className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 sticky top-0 z-50">
+      <header className="gradient-bg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             <Navbar lang={lang} setLang={setLang} />
@@ -198,7 +198,7 @@ const Landing = () => {
         </section>
 
         {/* Fintech Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 md:p-12">
+        <section className="blue-bg rounded-3xl p-8 md:p-12">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl font-bold text-gray-800 mb-6">
               {t.sections.fintech}

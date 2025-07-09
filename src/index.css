@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+
+.gradient-bg {
+    background: linear-gradient(to right, #2563eb, #4338ca, #6b21a8); /* blue-600 → indigo-700 → purple-800 */
+  }
+
+  .blue-bg {
+    background: linear-gradient(to right, #eff6ff, #eef2ff); /* blue-50 → indigo-50 */
+  }
+
+  .text-bg {
+    background: linear-gradient(to right, #60a5fa, #a855f7);
+  }
+
+  .feature-bg {
+    background: linear-gradient(to right, #3b82f6, #9333ea);
+  }

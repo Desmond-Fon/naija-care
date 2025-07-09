@@ -43,10 +43,10 @@ export const Navbar = ({
   const toggleMenu = () => setMenuOpen((open) => !open);
 
   return (
-    <nav className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-6 py-4 shadow-lg w-full flex flex-col lg:flex-row justify-between items-center gap-4 relative">
+    <nav className="bg-white/10 backdrop-blur-md z-1000 rounded-2xl px-6 py-4 shadow-lg w-full flex flex-col lg:flex-row justify-between items-center gap-4 relative">
       <div className="flex w-full lg:w-auto justify-between items-center">
-        <Link to={'/'}>
-            <h1 className="text-white font-bold text-[20px]">NaijaCare</h1>
+        <Link to={"/"}>
+          <h1 className="text-white font-bold text-[20px]">NaijaCare</h1>
         </Link>
         <div className="lg:hidden relative">
           <select
@@ -87,7 +87,7 @@ export const Navbar = ({
       </ul>
       {/* Mobile Nav Items (collapsible) */}
       {menuOpen && (
-        <ul className="flex flex-col gap-4 text-white font-medium text-base absolute top-full left-0 w-full bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 rounded-b-2xl shadow-lg z-50 p-6 lg:hidden animate-fade-in">
+        <ul className="flex flex-col gap-4 text-white font-medium text-base absolute top-full left-0 w-full min-h-[200px] gradient-bg  rounded-b-2xl shadow-lg z-50 p-6 lg:hidden animate-fade-in">
           {navItems.map((item) => (
             <li key={item.href}>
               <Link
@@ -101,6 +101,7 @@ export const Navbar = ({
           ))}
         </ul>
       )}
+
       {/* Language Selector Dropdown */}
       <div className="hidden lg:block relative">
         <select

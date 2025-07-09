@@ -52,7 +52,7 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header with gradient background */}
-      <header className="bg-gradient-to-r from-blue-600 via-indigo-700 to-purple-800 sticky top-0 z-50">
+      <header className="gradient-bg sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
             <Navbar lang={lang} setLang={setLang} />
@@ -106,7 +106,7 @@ const Contact = () => {
         </section>
 
         {/* Live Chat Section */}
-        <section className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 flex flex-col items-center text-center">
+        <section className="blue-bg rounded-2xl p-8 flex flex-col items-center text-center">
           <MessageCircle className="w-10 h-10 text-blue-600 mb-2" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Live Chat</h2>
           <p className="text-gray-700 mb-4">
