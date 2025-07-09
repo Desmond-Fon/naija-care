@@ -1,24 +1,31 @@
 import { useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
-import type { Lang } from "../pages/landing/index";
+import type { Lang } from "../pages/publicPages/landing/index";
+import { Link } from "react-router-dom";
 
 /**
  * Navbar component with navigation links, language selector, and responsive hamburger menu for mobile.
  * @param lang - The current selected language code.
  * @param setLang - Function to update the selected language.
  */
-export const Navbar = ({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) => {
+export const Navbar = ({
+  lang,
+  setLang,
+}: {
+  lang: Lang;
+  setLang: (l: Lang) => void;
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "Home", href: "#home" },
-    { label: "Find Care", href: "#find-care" },
-    { label: "Book Appointment", href: "#book-appointment" },
-    { label: "Telemedicine", href: "#telemedicine" },
-    { label: "Wallet", href: "#wallet" },
-    { label: "Education", href: "#education" },
-    { label: "Dashboard", href: "#dashboard" },
-    { label: "Support", href: "#support" },
+    { label: "Home", href: "/" },
+    { label: "Find Care", href: "/find-care" },
+    // { label: "Book Appointment", href: "/book-appointment" },
+    // { label: "Telemedicine", href: "/telemedicine" },
+    // { label: "Wallet", href: "/wallet" },
+    { label: "Education", href: "/health-education" },
+    { label: "Support", href: "/contact" },
+    { label: "Login", href: "/auth" },
   ];
 
   // Language names for selector
@@ -38,7 +45,9 @@ export const Navbar = ({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
   return (
     <nav className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-6 py-4 shadow-lg w-full flex flex-col lg:flex-row justify-between items-center gap-4 relative">
       <div className="flex w-full lg:w-auto justify-between items-center">
-        <h1 className="text-white font-bold text-[20px]">NaijaCare</h1>
+        <Link to={'/'}>
+            <h1 className="text-white font-bold text-[20px]">NaijaCare</h1>
+        </Link>
         <div className="lg:hidden relative">
           <select
             value={lang}
@@ -66,13 +75,13 @@ export const Navbar = ({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => vo
       <ul className="hidden lg:flex flex-wrap justify-center items-center gap-6 text-white font-medium text-sm">
         {navItems.map((item) => (
           <li key={item.href}>
-            <a
-              href={item.href}
+            <Link
+              to={item.href}
               className="hover:text-blue-300 transition-all duration-200 relative group"
             >
               {item.label}
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-300 transition-all duration-200 group-hover:w-full"></span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

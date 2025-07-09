@@ -11,9 +11,8 @@ import {
   HeartPlus,
 } from "lucide-react";
 
-import { translations } from "../../lib/translations";
-import { Navbar } from "../../components/Nav";
-
+import { translations } from "../../../lib/translations";
+import { Navbar } from "../../../components/Nav";
 
 type TranslationSection = {
   title: string;
@@ -33,9 +32,7 @@ type Translation = {
 };
 
 // Define supported language codes explicitly for type safety
-export type Lang = 'en' | 'pidgin' | 'igbo' | 'yoruba' | 'hausa';
-
-
+export type Lang = "en" | "pidgin" | "igbo" | "yoruba" | "hausa";
 
 const Hero = ({ t }: { t: Translation }) => (
   <>
@@ -98,7 +95,17 @@ const FeatureCard = ({
   </div>
 );
 
-const TestimonialCard = ({ name, role, content, rating }: { name: string, role: string, content: string, rating: number }) => (
+const TestimonialCard = ({
+  name,
+  role,
+  content,
+  rating,
+}: {
+  name: string;
+  role: string;
+  content: string;
+  rating: number;
+}) => (
   <div className="bg-white rounded-2xl p-6 shadow-lg">
     <div className="flex items-center mb-4">
       {[...Array(rating)].map((_, i) => (
@@ -115,7 +122,7 @@ const TestimonialCard = ({ name, role, content, rating }: { name: string, role: 
 
 const Landing = () => {
   // State for selected language
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>("en");
   // Get translation for the selected language
   const t = translations[lang];
 
@@ -156,7 +163,7 @@ const Landing = () => {
               Everything you need for better healthcare management
             </p>
           </div>
-          
+
           {/*
             Render feature cards using translated features from the selected language.
             The icons are mapped in order to the features array.
@@ -187,7 +194,6 @@ const Landing = () => {
                 );
               });
             })()}
-
           </div>
         </section>
 
@@ -202,7 +208,9 @@ const Landing = () => {
             </p>
             <div className="grid md:grid-cols-3 gap-6 text-center">
               <div>
-                <div className="text-3xl font-bold text-blue-600 mb-2">₦2M+</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">
+                  ₦2M+
+                </div>
                 <p className="text-gray-600">Saved on healthcare costs</p>
               </div>
               <div>
@@ -210,7 +218,9 @@ const Landing = () => {
                 <p className="text-gray-600">Average cashback</p>
               </div>
               <div>
-                <div className="text-3xl font-bold text-blue-600 mb-2">50k+</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">
+                  50k+
+                </div>
                 <p className="text-gray-600">Active users</p>
               </div>
             </div>
@@ -239,7 +249,7 @@ const Landing = () => {
               Real stories from real people
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <TestimonialCard
               name="Adebayo Johnson"
@@ -264,7 +274,6 @@ const Landing = () => {
       </main>
 
       {/* Enhanced Footer */}
-
     </div>
   );
 };
