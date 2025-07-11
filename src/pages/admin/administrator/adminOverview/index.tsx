@@ -1,22 +1,69 @@
-// Dummy data for demonstration
-const stats = {
-  users: 120,
-  doctors: 8,
-  appointments: 340,
-  revenue: 250000,
-};
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
+import { getAdminStats, getRecentActivities } from "../../../../lib/helpers/user";
+import { useAppToast } from "../../../../lib/useAppToast";
 
-const recentActivities = [
-  { id: 1, type: "user", message: "New user registered: Jane Doe", time: "2 mins ago" },
-  { id: 2, type: "appointment", message: "Appointment confirmed for John Smith", time: "10 mins ago" },
-  { id: 3, type: "doctor", message: "Dr. Williams added to Cardiology", time: "1 hour ago" },
-  { id: 4, type: "payment", message: "Payment received from Jane Doe (₦5,000)", time: "2 hours ago" },
-];
+// const recentActivities = [
+//   { id: 1, type: "user", message: "New user registered: Jane Doe", time: "2 mins ago" },
+//   { id: 2, type: "appointment", message: "Appointment confirmed for John Smith", time: "10 mins ago" },
+//   { id: 3, type: "doctor", message: "Dr. Williams added to Cardiology", time: "1 hour ago" },
+//   { id: 4, type: "payment", message: "Payment received from Jane Doe (₦5,000)", time: "2 hours ago" },
+// ];
 
 /**
  * AdminOverview component displays key metrics and recent activities for the admin dashboard.
  */
 const AdminOverview = () => {
+    const toast = useAppToast()
+  const [stats, setStats] = useState<any>({ users: 0, doctors: 0, appointments: 0, revenue: 0 });
+  const [activities, setActivities] = useState<any>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [activitiesError, setActivitiesError] = useState("");
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getAdminStats();
+        setStats(data);
+      } catch (err: any) {
+        toast({
+            status: 'error',
+            description: err || err.message || 'Failed to load statistics'
+        })
+      }
+    };
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      setActivitiesLoading(true);
+      setActivitiesError("");
+      try {
+        const acts = await getRecentActivities(10);
+        setActivities(acts);
+      } catch (err: any) {
+        toast({
+          status: "error",
+          description: err || err.message || "Failed to load recent activities",
+        });
+        setActivitiesError("Failed to load recent activities.");
+      } finally {
+        setActivitiesLoading(false);
+      }
+    };
+    fetchActivities();
+  }, []);
+
+  const activityColors: Record<string, string> = {
+    user: "#3b82f6", // blue
+    appointment: "#f59e42", // orange
+    doctor: "#10b981", // green
+    payment: "#a78bfa", // purple
+  };
+
+    
   return (
     <div className="p-4 max-w-5xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">Admin Overview</h2>
@@ -40,25 +87,43 @@ const AdminOverview = () => {
         </div>
       </div>
       {/* Recent Activities */}
-      <div className="bg-white rounded-lg shadow p-4">
-        <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
-        <ul className="divide-y divide-gray-200">
-          {recentActivities.map((activity) => (
-            <li key={activity.id} className="py-2 flex items-center">
-              <span className="inline-block w-2 h-2 rounded-full mr-3"
-                style={{ backgroundColor: activity.type === "user" ? "#3b82f6" : activity.type === "doctor" ? "#10b981" : activity.type === "appointment" ? "#f59e42" : "#a78bfa" }}
-              ></span>
-              <span className="flex-1">{activity.message}</span>
-              <span className="text-xs text-gray-400 ml-4">{activity.time}</span>
-            </li>
-          ))}
-          {recentActivities.length === 0 && (
-            <li className="py-2 text-gray-400 text-center">No recent activities.</li>
-          )}
-        </ul>
+      <div className="recent-activities" style={{ marginTop: 32 }}>
+        <h3>Recent Activities</h3>
+        {activitiesLoading ? (
+          <p>Loading activities...</p>
+        ) : activitiesError ? (
+          <p style={{ color: 'red' }}>{activitiesError}</p>
+        ) : (
+          <div style={{ background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            {activities.length === 0 ? (
+              <p>No recent activities.</p>
+            ) : (
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {activities.map((a: any, idx: any) => (
+                  <li key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: activityColors[a.type] || '#ccc', marginRight: 12, display: 'inline-block' }}></span>
+                    <span style={{ flex: 1 }}>{a.message}</span>
+                    <span style={{ color: '#888', fontSize: 14, marginLeft: 16 }}>{timeAgo(a.timestamp)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
 };
+
+// Helper to format time ago
+function timeAgo(dateStr: string) {
+  const now = new Date();
+  const date = new Date(dateStr);
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diff < 60) return `${diff} sec${diff !== 1 ? 's' : ''} ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} min${Math.floor(diff / 60) !== 1 ? 's' : ''} ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hour${Math.floor(diff / 3600) !== 1 ? 's' : ''} ago`;
+  return `${Math.floor(diff / 86400)} day${Math.floor(diff / 86400) !== 1 ? 's' : ''} ago`;
+}
 
 export default AdminOverview;

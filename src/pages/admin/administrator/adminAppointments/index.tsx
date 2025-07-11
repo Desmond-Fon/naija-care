@@ -1,9 +1,16 @@
-import React, { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useEffect } from "react";
+import { getAllAppointmentsForAdmin, updateAppointmentForAdmin } from "../../../../lib/helpers/user";
+import { useAppToast } from "../../../../lib/useAppToast";
+
 
 // Appointment type definition (reuse from user appointments)
 interface Appointment {
   id: string;
-  user: string; // User's name or identifier
+  name: string; // User's name or identifier
+  userId?: string; // Add userId for backend updates
+  userEmail?: string;
   type: "virtual" | "in-person";
   date: string;
   time: string;
@@ -12,67 +19,101 @@ interface Appointment {
   amount: number;
   googleMeetLink?: string;
   doctor?: string;
+  note?: string;
 }
 
 // Dummy data for demonstration
-const initialAppointments: Appointment[] = [
-  {
-    id: "1",
-    user: "Jane Doe",
-    type: "virtual",
-    date: "2024-05-10",
-    time: "10:00",
-    status: "pending",
-    paymentStatus: "unpaid",
-    amount: 5000,
-    googleMeetLink: undefined,
-    doctor: "Dr. Williams",
-  },
-  {
-    id: "2",
-    user: "John Smith",
-    type: "in-person",
-    date: "2024-05-12",
-    time: "14:00",
-    status: "confirmed",
-    paymentStatus: "paid",
-    amount: 7000,
-    googleMeetLink: undefined,
-    doctor: "Dr. Johnson",
-  },
-  {
-    id: "3",
-    user: "Jane Doe",
-    type: "virtual",
-    date: "2024-05-15",
-    time: "09:00",
-    status: "confirmed",
-    paymentStatus: "unpaid",
-    amount: 6000,
-    googleMeetLink: "https://meet.google.com/example-link",
-    doctor: "Dr. Williams",
-  },
-];
+// const initialAppointments: Appointment[] = [
+//   {
+//     id: "1",
+//     user: "Jane Doe",
+//     type: "virtual",
+//     date: "2024-05-10",
+//     time: "10:00",
+//     status: "pending",
+//     paymentStatus: "unpaid",
+//     amount: 5000,
+//     googleMeetLink: undefined,
+//     doctor: "Dr. Williams",
+//   },
+//   {
+//     id: "2",
+//     user: "John Smith",
+//     type: "in-person",
+//     date: "2024-05-12",
+//     time: "14:00",
+//     status: "confirmed",
+//     paymentStatus: "paid",
+//     amount: 7000,
+//     googleMeetLink: undefined,
+//     doctor: "Dr. Johnson",
+//   },
+//   {
+//     id: "3",
+//     user: "Jane Doe",
+//     type: "virtual",
+//     date: "2024-05-15",
+//     time: "09:00",
+//     status: "confirmed",
+//     paymentStatus: "unpaid",
+//     amount: 6000,
+//     googleMeetLink: "https://meet.google.com/example-link",
+//     doctor: "Dr. Williams",
+//   },
+// ];
 
 /**
  * AdminAppointments page: Lists all user appointments, allows status changes, editing payment amount, and managing Google Meet links.
  */
 const AdminAppointments = () => {
   // State for appointments
-  const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
+  const toast = useAppToast()
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   // State for editing appointment
-  const [editing, setEditing] = useState<Appointment | null>(null);
-  // State for edit form
-  const [form, setForm] = useState({
-    amount: 0,
-    googleMeetLink: "",
-    status: "pending" as Appointment["status"],
-    paymentStatus: "unpaid" as Appointment["paymentStatus"],
-    doctor: "",
-  });
-  // State for messages
-  const [message, setMessage] = useState("");
+//   const [editing, setEditing] = useState<Appointment | null>(null);
+//   // State for edit form
+//   const [form, setForm] = useState({
+//     amount: 0,
+//     googleMeetLink: "",
+//     status: "pending" as Appointment["status"],
+//     paymentStatus: "unpaid" as Appointment["paymentStatus"],
+//     doctor: "",
+//   });
+//   // State for messages
+//   const [message, setMessage] = useState("");
+// State for editing appointment
+const [editing, setEditing] = useState<Appointment | null>(null);
+// State for edit form
+const [form, setForm] = useState({
+  amount: 0,
+  googleMeetLink: "",
+  status: "pending" as Appointment["status"],
+  paymentStatus: "unpaid" as Appointment["paymentStatus"],
+  doctor: "",
+  note: "",
+});
+// State for messages
+const [message, setMessage] = useState("");
 
+  // Fetch all appointments on mount
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const all = await getAllAppointmentsForAdmin();
+        setAppointments(all);
+      } catch (error: any) {
+        toast({
+          status: "error",
+          description:
+            error ||
+            error?.message ||
+            "Failed to load appointment. Please try again.",
+        });
+        setMessage("Failed to load appointments.");
+      }
+    }
+    fetchAppointments();
+  }, []);
   /**
    * Open edit modal for an appointment
    */
@@ -84,6 +125,7 @@ const AdminAppointments = () => {
       status: appt.status,
       paymentStatus: appt.paymentStatus,
       doctor: appt.doctor || "",
+      note: appt.note || "",
     });
     setMessage("");
   }
@@ -91,25 +133,49 @@ const AdminAppointments = () => {
   /**
    * Update appointment details (status, amount, Google Meet link, payment status)
    */
-  function handleUpdate(e: React.FormEvent) {
+  async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     if (!editing) return;
-    setAppointments(
-      appointments.map((a) =>
-        a.id === editing.id
-          ? {
-              ...a,
-              amount: form.amount,
-              googleMeetLink: form.googleMeetLink || undefined,
-              status: form.status,
-              paymentStatus: form.paymentStatus,
-              doctor: form.doctor,
-            }
-          : a
-      )
-    );
-    setEditing(null);
     setMessage("");
+    try {
+      await updateAppointmentForAdmin(
+        editing.userId!,
+        editing.id,
+        {
+          amount: form.amount,
+          googleMeetLink: form.googleMeetLink || undefined,
+          status: form.status,
+          paymentStatus: form.paymentStatus,
+          doctor: form.doctor,
+          note: form.note,
+        }
+      );
+      setAppointments(
+        appointments.map((a) =>
+          a.id === editing.id
+            ? {
+                ...a,
+                amount: form.amount,
+                googleMeetLink: form.googleMeetLink || undefined,
+                status: form.status,
+                paymentStatus: form.paymentStatus,
+                doctor: form.doctor,
+                note: form.note,
+              }
+            : a
+        )
+      );
+      setEditing(null);
+    } catch (error: any) {
+        toast({
+          status: "error",
+          description:
+            error ||
+            error?.message ||
+            "Failed to update appointment. Please try again.",
+        });
+      setMessage("Failed to update appointment. Please try again.");
+    }
   }
 
   /**
@@ -156,8 +222,12 @@ const AdminAppointments = () => {
             <tbody>
               {appointments.map((a) => (
                 <tr key={a.id} className="border-b">
-                  <td className="p-2">{a.user}</td>
-                  <td className="p-2">{a.doctor || <span className="text-gray-400 text-xs">Unassigned</span>}</td>
+                  <td className="p-2">{a.name}</td>
+                  <td className="p-2">
+                    {a.doctor || (
+                      <span className="text-gray-400 text-xs">Unassigned</span>
+                    )}
+                  </td>
                   <td className="p-2 capitalize">{a.type}</td>
                   <td className="p-2">{a.date}</td>
                   <td className="p-2">{a.time}</td>
@@ -175,7 +245,9 @@ const AdminAppointments = () => {
                         Meet Link
                       </a>
                     ) : (
-                      a.type === "virtual" && <span className="text-gray-400 text-xs">None</span>
+                      a.type === "virtual" && (
+                        <span className="text-gray-400 text-xs">None</span>
+                      )
                     )}
                   </td>
                   <td className="p-2">
@@ -205,12 +277,14 @@ const AdminAppointments = () => {
             <h3 className="text-lg font-bold mb-4">Edit Appointment</h3>
             <form onSubmit={handleUpdate} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Doctor Assigned</label>
+                <label className="block text-sm font-medium mb-1">
+                  Doctor Assigned
+                </label>
                 <input
                   type="text"
                   className="w-full border rounded px-2 py-1"
                   value={form.doctor}
-                  onChange={e => setForm({ ...form, doctor: e.target.value })}
+                  onChange={(e) => setForm({ ...form, doctor: e.target.value })}
                   placeholder="Enter doctor's name"
                   required
                 />
@@ -220,7 +294,12 @@ const AdminAppointments = () => {
                 <select
                   className="w-full border rounded px-2 py-1"
                   value={form.status}
-                  onChange={e => setForm({ ...form, status: e.target.value as Appointment["status"] })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      status: e.target.value as Appointment["status"],
+                    })
+                  }
                 >
                   <option value="pending">Pending</option>
                   <option value="confirmed">Confirmed</option>
@@ -229,36 +308,67 @@ const AdminAppointments = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Payment Status</label>
+                <label className="block text-sm font-medium mb-1">
+                  Payment Status
+                </label>
                 <select
                   className="w-full border rounded px-2 py-1"
                   value={form.paymentStatus}
-                  onChange={e => setForm({ ...form, paymentStatus: e.target.value as Appointment["paymentStatus"] })}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      paymentStatus: e.target
+                        .value as Appointment["paymentStatus"],
+                    })
+                  }
                 >
                   <option value="unpaid">Unpaid</option>
                   <option value="paid">Paid</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Amount (₦)</label>
+                <label className="block text-sm font-medium mb-1">
+                  Amount (₦)
+                </label>
                 <input
                   type="number"
                   className="w-full border rounded px-2 py-1"
                   value={form.amount}
-                  onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setForm({ ...form, amount: Number(e.target.value) })
+                  }
+                  min={0}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Doctors note
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-2 py-1"
+                  value={form.note}
+                  onChange={(e) =>
+                    setForm({ ...form, note: e.target.value })
+                  }
                   min={0}
                   required
                 />
               </div>
               {editing.type === "virtual" && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Google Meet Link</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Google Meet Link
+                  </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
                       className="w-full border rounded px-2 py-1"
                       value={form.googleMeetLink}
-                      onChange={e => setForm({ ...form, googleMeetLink: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, googleMeetLink: e.target.value })
+                      }
                       placeholder="Paste or generate link"
                     />
                     <button

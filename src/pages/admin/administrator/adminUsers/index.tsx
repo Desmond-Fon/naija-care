@@ -5,65 +5,12 @@ import { createUser, getUsers } from "../../../../lib/helpers/user";
 import { auth } from "../../../../lib/firebase";
 import { useAppToast } from "../../../../lib/useAppToast";
 
-// import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
-// import { auth } from "@/lib/firebase";
-// import { saveUserToFirestore } from "./saveUserToFirestore"; // adjust import
-
-// export const createUserAsAdmin = async (userData: {
-//   email: string;
-//   password: string;
-//   name: string;
-//   role: string;
-// }) => {
-//   const { email, password, name, role } = userData;
-
-//   const userCredential = await createUserWithEmailAndPassword(
-//     auth,
-//     email,
-//     password
-//   );
-//   const newUser = userCredential.user;
-
-//   // Save to Firestore
-//   await saveUserToFirestore({
-//     uid: newUser.uid,
-//     email,
-//     name,
-//     role,
-//   });
-
-//   // Optional: Sign out the new user immediately
-//   await signOut(auth);
-// };
-
-// Dummy users for demonstration
-// const initialUsers = [
-//   {
-//     id: 1,
-//     name: "Jane Doe",
-//     email: "jane.doe@email.com",
-//     nhis_number: "NHIS1223JD",
-//     phone: "+2348012345678",
-//     address: "123 Main Street, Lagos, Nigeria",
-//     profilePic: "https://ui-avatars.com/api/?name=Jane+Doe&background=0D8ABC&color=fff"
-//   },
-//   {
-//     id: 2,
-//     name: "John Smith",
-//     email: "john.smith@email.com",
-//     nhis_number: "NHIS1223JS",
-//     phone: "+2348098765432",
-//     address: "456 Side Road, Abuja, Nigeria",
-//     profilePic: "https://ui-avatars.com/api/?name=John+Smith&background=0D8ABC&color=fff"
-//   }
-// ];
-
 /**
  * AdminUsers page: Lists users under this admin and provides a modal to add a user.
  * The add user form includes full name, email, profile picture, NHIS number, phone, and address.
  */
 const AdminUsers = () => {
-    const toast = useAppToast()
+  const toast = useAppToast();
   // State for users
   const [users, setUsers] = useState<any>([]);
   // State for modal visibility
@@ -92,18 +39,18 @@ const AdminUsers = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Dummy patient history and appointments (replace with real data later)
-  const dummyHistory = [
-    { date: "2024-03-01", description: "General Checkup", notes: "All good." },
-    {
-      date: "2024-02-15",
-      description: "Malaria Treatment",
-      notes: "Prescribed medication.",
-    },
-  ];
-  const dummyAppointments = [
-    { date: "2024-04-10", type: "Virtual", status: "Completed" },
-    { date: "2024-05-01", type: "In-person", status: "Upcoming" },
-  ];
+  //   const dummyHistory = [
+  //     { date: "2024-03-01", description: "General Checkup", notes: "All good." },
+  //     {
+  //       date: "2024-02-15",
+  //       description: "Malaria Treatment",
+  //       notes: "Prescribed medication.",
+  //     },
+  //   ];
+  //   const dummyAppointments = [
+  //     { date: "2024-04-10", type: "Virtual", status: "Completed" },
+  //     { date: "2024-05-01", type: "In-person", status: "Upcoming" },
+  //   ];
 
   // Filter users by NHIS number
   const filteredUsers = users.filter((user: any) =>
@@ -228,11 +175,11 @@ const AdminUsers = () => {
     const { email, password, name, phone, address, profilePic } = form;
 
     if (!form.name || !form.email || !form.password) {
-    //   setMessage("Full name, email, and NHIS number are required.");
+      //   setMessage("Full name, email, and NHIS number are required.");
       toast({
-        status: 'error',
-        description: "All fields are required"
-      })
+        status: "error",
+        description: "All fields are required",
+      });
       return;
     }
 
@@ -267,17 +214,17 @@ const AdminUsers = () => {
       allUsers = allUsers.filter((user: any) => user.role === "user");
       setUsers(allUsers);
       setRefetch(!refetch);
-      setShowModal(false)
+      setShowModal(false);
       toast({
         status: "success",
         description: "User added successfully",
       });
-    } catch (error : any) {
+    } catch (error: any) {
       console.error("Error creating user:", error);
       toast({
-        status: 'error',
-        description: error?.message || "Error creating user"
-      })
+        status: "error",
+        description: error?.message || "Error creating user",
+      });
     }
   };
 
@@ -508,10 +455,10 @@ const AdminUsers = () => {
             </div>
             <h4 className="font-semibold mb-2">Patient History</h4>
             <ul className="mb-4 text-sm list-disc pl-5">
-              {dummyHistory.map((h, idx) => (
+              {selectedUser.appointments.map((h: any, idx: any) => (
                 <li key={idx}>
-                  <span className="font-medium">{h.date}:</span> {h.description}{" "}
-                  <span className="text-gray-500">({h.notes})</span>
+                  <span className="font-medium">{h.date}:</span> {h.message}{" "}
+                  {h.note && <span className="text-gray-500">({h.note})</span>}
                 </li>
               ))}
             </ul>
@@ -525,7 +472,7 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody>
-                {dummyAppointments.map((a, idx) => (
+                {selectedUser.appointments.map((a: any, idx: any) => (
                   <tr key={idx}>
                     <td className="p-1">{a.date}</td>
                     <td className="p-1">{a.type}</td>

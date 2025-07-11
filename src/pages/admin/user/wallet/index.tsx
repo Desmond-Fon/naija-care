@@ -1,5 +1,9 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { CreditCard, Bitcoin, PlusCircle } from "lucide-react";
+import { useUser } from "../../../../context/useUser";
+import { addFundsToWallet } from "../../../../lib/helpers/user";
+import { useAppToast } from "../../../../lib/useAppToast";
 
 /**
  * User wallet page for managing funds.
@@ -8,10 +12,11 @@ import { CreditCard, Bitcoin, PlusCircle } from "lucide-react";
  */
 const Wallet = () => {
   // State for wallet balance and transactions
-  const [balance, setBalance] = useState(5000); // Example starting balance
-  const [transactions, setTransactions] = useState([
-    { id: 1, type: "Deposit", method: "Card", amount: 5000, date: "2024-06-01" },
-  ]);
+  const { user, setRefetch, refetch } = useUser();
+  const toast = useAppToast();
+  const [balance, setBalance] = useState(user?.wallet || 0); // Example starting balance
+  const [transactions, setTransactions] = useState(user?.transactions || []);
+
   // State for add funds modal
   const [showModal, setShowModal] = useState(false);
   const [amount, setAmount] = useState("");
@@ -20,8 +25,14 @@ const Wallet = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Keep form and preview in sync with user context
+  useEffect(() => {
+    setBalance(user ? user.wallet : 0);
+    setTransactions(user?.transactions || []);
+  }, [user, refetch]);
+
   // Handle add funds
-  const handleAddFunds = (e: React.FormEvent) => {
+  const handleAddFunds = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -31,32 +42,41 @@ const Wallet = () => {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setBalance(b => b + amt);
-      setTransactions(ts => [
-        {
-          id: ts.length + 1,
-          type: "Deposit",
-          method: method === "card" ? "Card" : "Blockchain",
-          amount: amt,
-          date: new Date().toISOString().slice(0, 10),
-        },
-        ...ts,
-      ]);
-      setSuccess(`Successfully added ₦${amt.toLocaleString()} via ${method === "card" ? "Card" : "Blockchain"}`);
+    try {
+      const result = await addFundsToWallet(
+        amt,
+        method as "card" | "blockchain"
+      );
+      toast({
+        description: result.message,
+        status: "success",
+      });
+      setSuccess(result.message);
       setAmount("");
       setShowModal(false);
-    }, 1200);
+      setRefetch(!refetch);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+      toast({
+        description: err.message || "Something went wrong",
+        status: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="max-w-6xl mx-auto w-full p-4 md:p-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">Wallet</h1>
+      <h1 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
+        Wallet
+      </h1>
       <div className="bg-white rounded-2xl shadow p-6 flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
         <div>
           <div className="text-gray-600 text-sm">Available Balance</div>
-          <div className="text-3xl font-bold text-gray-900 mt-1">₦{balance.toLocaleString()}</div>
+          <div className="text-3xl font-bold text-gray-900 mt-1">
+            ₦{balance.toLocaleString()}
+          </div>
         </div>
         <button
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg mt-4 md:mt-0"
@@ -69,25 +89,43 @@ const Wallet = () => {
       {showModal && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-30">
           <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm relative">
-            <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onClick={() => setShowModal(false)}>&times;</button>
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+              onClick={() => setShowModal(false)}
+            >
+              &times;
+            </button>
             <h2 className="text-xl font-bold mb-4">Add Funds</h2>
             <form onSubmit={handleAddFunds} className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-medium mb-1" htmlFor="amount">Amount</label>
+                <label
+                  className="block text-gray-700 font-medium mb-1"
+                  htmlFor="amount"
+                >
+                  Amount
+                </label>
                 <input
                   id="amount"
                   type="number"
                   min="1"
                   className="w-full rounded-lg border border-gray-300 p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-800"
                   value={amount}
-                  onChange={e => setAmount(e.target.value)}
+                  onChange={(e) => setAmount(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label className="block text-gray-700 font-medium mb-1">Payment Method</label>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Payment Method
+                </label>
                 <div className="flex gap-4">
-                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${method === "card" ? "border-blue-600 bg-blue-50" : "border-gray-300"}`}>
+                  <label
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${
+                      method === "card"
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-300"
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="method"
@@ -98,7 +136,13 @@ const Wallet = () => {
                     />
                     <CreditCard className="w-5 h-5" /> Card
                   </label>
-                  <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${method === "blockchain" ? "border-blue-600 bg-blue-50" : "border-gray-300"}`}>
+                  <label
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${
+                      method === "blockchain"
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-300"
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="method"
@@ -117,16 +161,20 @@ const Wallet = () => {
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg"
                 disabled={loading}
               >
-                {loading ? "Processing..." : `Add ₦${amount || ''}`}
+                {loading ? "Processing..." : `Add ₦${amount || ""}`}
               </button>
-              {success && <div className="text-green-600 text-sm mt-2">{success}</div>}
+              {success && (
+                <div className="text-green-600 text-sm mt-2">{success}</div>
+              )}
             </form>
           </div>
         </div>
       )}
       {/* Transaction History */}
       <div className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Transaction History</h2>
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Transaction History
+        </h2>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white rounded-xl shadow text-sm">
             <thead>
@@ -140,15 +188,19 @@ const Wallet = () => {
             <tbody>
               {transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="py-6 text-center text-gray-400">No transactions yet.</td>
+                  <td colSpan={4} className="py-6 text-center text-gray-400">
+                    No transactions yet.
+                  </td>
                 </tr>
               ) : (
-                transactions.map(tx => (
+                transactions.map((tx: any) => (
                   <tr key={tx.id} className="border-b last:border-none">
                     <td className="py-3 px-4">{tx.date}</td>
                     <td className="py-3 px-4">{tx.type}</td>
                     <td className="py-3 px-4">{tx.method}</td>
-                    <td className="py-3 px-4 text-right">₦{tx.amount.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-right">
+                      ₦{tx.amount.toLocaleString()}
+                    </td>
                   </tr>
                 ))
               )}

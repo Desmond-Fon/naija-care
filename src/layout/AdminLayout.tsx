@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LogOut,
   //   User,
@@ -14,6 +14,7 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { useAppToast } from "../lib/useAppToast";
+import { useUser } from "../context/useUser";
 
 /**
  * Responsive user dashboard layout with sidebar (desktop) and top nav (mobile).
@@ -28,6 +29,7 @@ const navItems = [
 
 const AdminLayout = () => {
   const toast = useAppToast();
+  const {user} = useUser()
   const navigate = useNavigate();
   // State for active nav item
   const [active, setActive] = useState("Overview");
@@ -46,6 +48,20 @@ const AdminLayout = () => {
     navigate("/");
     // Redirect or clear auth state here
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!user || user.role !== 'admin') {
+        toast({
+          status: "error",
+          description: "Please login to access your dashboard",
+        });
+        navigate("/");
+      }
+    }, 5000); // wait 800ms (or adjust depending on how fast your user fetch runs)
+
+    return () => clearTimeout(timeout);
+  }, [user, toast, navigate]);
 
   return (
     <div className="h-screen w-screen flex bg-gray-50 overflow-hidden">

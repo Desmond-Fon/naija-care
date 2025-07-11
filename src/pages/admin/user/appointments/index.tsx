@@ -1,4 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
+import { useUser } from "../../../../context/useUser";
+import { useAppToast } from "../../../../lib/useAppToast";
+import {
+  addAppointmentToCurrentUser,
+  rescheduleAppointmentForCurrentUser,
+  deleteAppointmentForCurrentUser,
+  removeFundsFromWallet,
+  updateUserAppointment,
+} from "../../../../lib/helpers/user";
 
 // Appointment type definition
 interface Appointment {
@@ -9,12 +19,18 @@ interface Appointment {
   status: "pending" | "confirmed" | "completed" | "cancelled";
   paymentStatus: "unpaid" | "paid";
   googleMeetLink?: string;
+  message: string;
+  amount?: number | any;
 }
 
 // Main Appointments component
 const Appointments = () => {
   // State for appointments
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const { user, setRefetch, refetch } = useUser();
+  const toast = useAppToast();
+  const [appointments, setAppointments] = useState<Appointment[]>(
+    user?.appointments || []
+  );
   // State for modal visibility
   const [showModal, setShowModal] = useState(false);
   // State for booking form
@@ -22,6 +38,7 @@ const Appointments = () => {
     type: "virtual" as "virtual" | "in-person",
     date: "",
     time: "",
+    message: "",
   });
   // State for selected appointment (for reschedule/delete)
   const [selected, setSelected] = useState<Appointment | null>(null);
@@ -34,59 +51,133 @@ const Appointments = () => {
 
   // Handle opening booking modal
   function handleBook() {
-    setForm({ type: "virtual", date: "", time: "" });
+    setForm({ type: "virtual", date: "", time: "", message: "" });
     setShowModal(true);
     setMessage("");
   }
 
   // Handle booking appointment
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.date || !form.time) {
+      toast({
+        status: "error",
+        description: "Please fill all fiends.",
+      });
       setMessage("Please fill all fields.");
       return;
     }
-    const newAppointment: Appointment = {
-      id: Date.now().toString(),
-      type: form.type,
-      date: form.date,
-      time: form.time,
-      status: "pending",
-      paymentStatus: "unpaid",
-    };
-    setAppointments([newAppointment, ...appointments]);
-    setShowModal(false);
     setMessage("");
+    try {
+      await addAppointmentToCurrentUser(
+        form.message, // message (not collected in form, so pass empty)
+        user?.name, // name (not collected in form, so pass empty)
+        form.date,
+        form.time,
+        form.type,
+        "pending",
+        "unpaid"
+      );
+      const newAppointment: Appointment = {
+        id: Date.now().toString(),
+        type: form.type,
+        date: form.date,
+        time: form.time,
+        status: "pending",
+        paymentStatus: "unpaid",
+        message: form.message,
+      };
+      setAppointments([newAppointment, ...appointments]);
+      setShowModal(false);
+      setMessage("");
+      setRefetch(!refetch);
+      toast({
+        status: "success",
+        description:
+          "Appointment booked successfully, please check for confirmation.",
+      });
+    } catch (error: any) {
+      toast({
+        status: "error",
+        description:
+          error ||
+          error?.message ||
+          "Failed to book appointment. Please try again.",
+      });
+      setMessage("Failed to book appointment. Please try again.");
+    }
   }
 
   // Handle reschedule
   function handleReschedule(appt: Appointment) {
     setSelected(appt);
-    setForm({ type: appt.type, date: appt.date, time: appt.time });
+    setForm({
+      type: appt.type,
+      date: appt.date,
+      time: appt.time,
+      message: appt.message,
+    });
     setShowModal(true);
     setMessage("");
   }
 
   // Handle update after reschedule
-  function handleUpdate(e: React.FormEvent) {
+  async function handleUpdate(e: React.FormEvent) {
     e.preventDefault();
     if (!form.date || !form.time || !selected) {
       setMessage("Please fill all fields.");
       return;
     }
-    setAppointments(
-      appointments.map((a) =>
-        a.id === selected.id ? { ...a, ...form, status: "pending" } : a
-      )
-    );
-    setShowModal(false);
-    setSelected(null);
     setMessage("");
+    try {
+      await rescheduleAppointmentForCurrentUser(
+        selected.id,
+        form.date,
+        form.time,
+        form.type,
+        form.message
+      );
+      setAppointments(
+        appointments.map((a) =>
+          a.id === selected.id ? { ...a, ...form, status: "pending" } : a
+        )
+      );
+      setShowModal(false);
+      setSelected(null);
+      setRefetch(!refetch);
+    } catch (error: any) {
+      toast({
+        status: "error",
+        description:
+          error ||
+          error?.message ||
+          "Failed to book appointment. Please try again.",
+      });
+      setMessage("Failed to reschedule appointment. Please try again.");
+    }
   }
 
   // Handle delete
-  function handleDelete(id: string) {
-    setAppointments(appointments.filter((a) => a.id !== id));
+  async function handleDelete(id: string) {
+    setMessage("");
+    try {
+      await deleteAppointmentForCurrentUser(id);
+      setAppointments(appointments.filter((a) => a.id !== id));
+      setRefetch(!refetch);
+      toast({
+        status: "success",
+        description: "Appointment deleted successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        status: "error",
+        description:
+          error ||
+          error?.message ||
+          "Failed to book appointment. Please try again.",
+      });
+      setMessage("Failed to delete appointment. Please try again.");
+    }
   }
 
   // Simulate admin confirming appointment
@@ -116,22 +207,45 @@ const Appointments = () => {
   }
 
   // Simulate payment
-  function handlePay() {
+  const handlePay = async () => {
     if (!paymentMethod) {
       setMessage("Select a payment method.");
       return;
     }
     if (selected) {
-      setAppointments(
-        appointments.map((a) =>
-          a.id === selected.id ? { ...a, paymentStatus: "paid" } : a
-        )
-      );
+      try {
+        await removeFundsFromWallet(
+          selected.amount,
+          paymentMethod as "card" | "blockchain" | "wallet"
+        );
+        await updateUserAppointment(selected.id, {
+          paymentStatus: "paid",
+        });
+        setAppointments(
+          appointments.map((a) =>
+            a.id === selected.id ? { ...a, paymentStatus: "paid" } : a
+          )
+        );
+        setRefetch(!refetch);
+        toast({
+          status: "success",
+          description: "Payment successful.",
+        });
+        setShowPayment(false);
+        setSelected(null);
+        setMessage("");
+      } catch (error: any) {
+        toast({
+          status: "error",
+          description:
+            error ||
+            error?.message ||
+            "Failed to make payment. Please try again.",
+        });
+        setMessage("Failed to make payment. Please try again.");
+      }
     }
-    setShowPayment(false);
-    setSelected(null);
-    setMessage("");
-  }
+  };
 
   return (
     <div className="p-4 max-w-6xl mx-auto w-full">
@@ -187,7 +301,9 @@ const Appointments = () => {
                         </div>
                       )}
                   </td>
-                  <td className="p-2 text-center capitalize">{a.paymentStatus}</td>
+                  <td className="p-2 text-center capitalize">
+                    {a.paymentStatus}
+                  </td>
                   <td className="p-2 text-center flex flex-col gap-1">
                     {a.status === "pending" && (
                       <button
@@ -281,6 +397,20 @@ const Appointments = () => {
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Additional Info
+                </label>
+                <input
+                  type="text"
+                  className="w-full border rounded px-2 py-1"
+                  value={form.message}
+                  onChange={(e) =>
+                    setForm({ ...form, message: e.target.value })
+                  }
+                  required
+                />
+              </div>
               {message && <div className="text-red-500 text-sm">{message}</div>}
               <div className="flex justify-end gap-2">
                 <button
@@ -330,6 +460,10 @@ const Appointments = () => {
                 <option value="wallet">Wallet</option>
               </select>
             </div>
+            <h3 className="text-lg font-bold mb-4">
+              Amount : ₦{Math.abs(selected?.amount)}
+            </h3>
+
             {message && (
               <div className="text-red-500 text-sm mb-2">{message}</div>
             )}

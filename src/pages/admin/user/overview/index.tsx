@@ -62,15 +62,15 @@ const Overview = () => {
       {/* Appointment Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <div className="bg-blue-50 rounded p-4 text-center">
-          <div className="text-2xl font-bold">{totalAppointments}</div>
+          <div className="text-2xl font-bold">{totalAppointments || 0}</div>
           <div className="text-gray-600">Total Appointments</div>
         </div>
         <div className="bg-green-50 rounded p-4 text-center">
-          <div className="text-2xl font-bold">{completed}</div>
+          <div className="text-2xl font-bold">{completed || 0}</div>
           <div className="text-gray-600">Completed</div>
         </div>
         <div className="bg-yellow-50 rounded p-4 text-center">
-          <div className="text-2xl font-bold">{upcoming}</div>
+          <div className="text-2xl font-bold">{upcoming || 0}</div>
           <div className="text-gray-600">Upcoming</div>
         </div>
       </div>

@@ -19,7 +19,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState<null | any>(null);
+  const [user, setUser] = useState<null | any>(undefined);
   const [refetch, setRefetch] = useState<any>(false);
 
   useEffect(() => {
