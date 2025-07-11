@@ -1,10 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
+import { auth } from "../../../lib/firebase";
+import { getUserById } from "../../../lib/helpers/user";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Login page component with role selection (user/admin).
  * Includes a back button and omits header/footer for a focused experience.
  */
 const Login = () => {
+  const navigate = useNavigate()
   // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,20 +21,68 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     // Simulate login logic (replace with real API call)
-    setTimeout(() => {
-      setLoading(false);
-      if (!email || !password) {
-        setError("Please enter both email and password.");
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   if (!email || !password) {
+    //     setError("Please enter both email and password.");
+    //   } else {
+    //     // Redirect or show success (not implemented)
+    //     alert(`Logged in as ${isAdmin ? "Admin" : "User"}`);
+    //   }
+    // }, 1000);
+    if (!email || !password) {
+          setError("Please enter both email and password.");
+          return
+        }
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const userDoc = await getUserById(user.uid);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.role === 'admin' && isAdmin) {
+          // Redirect to admin dashboard
+          // toast({
+          //   description: "Welcome to the admin dashboard!",
+          //   status: "success",
+          // });
+          navigate("/admin");
+          setLoading(false);
+        } else if (userData.role === 'user') {
+          navigate("/user");
+          setLoading(false);
+        } else {
+          // Sign user out
+          await auth.signOut();
+          // toast({
+          //   description: "Access denied. You are not an admin.",
+          //   status: "error",
+          // });
+          setLoading(false);
+        }
       } else {
-        // Redirect or show success (not implemented)
-        alert(`Logged in as ${isAdmin ? "Admin" : "User"}`);
+        setLoading(false);
+        await auth.signOut();
       }
-    }, 1000);
+    } catch (error: any) {
+      setLoading(false);
+      console.log(error)
+      // toast({
+      //   description: error.message || "Access denied. You are not an admin.",
+      //   status: "error",
+      // });
+    }
   };
 
   // Handle back navigation

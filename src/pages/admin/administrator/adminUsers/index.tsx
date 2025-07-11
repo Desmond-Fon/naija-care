@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useRef } from "react";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import React, { useState, useRef, useEffect } from "react";
+import { createUser, getUsers } from "../../../../lib/helpers/user";
+import { auth } from "../../../../lib/firebase";
 
 // import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 // import { auth } from "@/lib/firebase";
@@ -33,26 +36,26 @@ import React, { useState, useRef } from "react";
 // };
 
 // Dummy users for demonstration
-const initialUsers = [
-  {
-    id: 1,
-    name: "Jane Doe",
-    email: "jane.doe@email.com",
-    nhis_number: "NHIS1223JD",
-    phone: "+2348012345678",
-    address: "123 Main Street, Lagos, Nigeria",
-    profilePic: "https://ui-avatars.com/api/?name=Jane+Doe&background=0D8ABC&color=fff"
-  },
-  {
-    id: 2,
-    name: "John Smith",
-    email: "john.smith@email.com",
-    nhis_number: "NHIS1223JS",
-    phone: "+2348098765432",
-    address: "456 Side Road, Abuja, Nigeria",
-    profilePic: "https://ui-avatars.com/api/?name=John+Smith&background=0D8ABC&color=fff"
-  }
-];
+// const initialUsers = [
+//   {
+//     id: 1,
+//     name: "Jane Doe",
+//     email: "jane.doe@email.com",
+//     nhis_number: "NHIS1223JD",
+//     phone: "+2348012345678",
+//     address: "123 Main Street, Lagos, Nigeria",
+//     profilePic: "https://ui-avatars.com/api/?name=Jane+Doe&background=0D8ABC&color=fff"
+//   },
+//   {
+//     id: 2,
+//     name: "John Smith",
+//     email: "john.smith@email.com",
+//     nhis_number: "NHIS1223JS",
+//     phone: "+2348098765432",
+//     address: "456 Side Road, Abuja, Nigeria",
+//     profilePic: "https://ui-avatars.com/api/?name=John+Smith&background=0D8ABC&color=fff"
+//   }
+// ];
 
 /**
  * AdminUsers page: Lists users under this admin and provides a modal to add a user.
@@ -60,9 +63,10 @@ const initialUsers = [
  */
 const AdminUsers = () => {
   // State for users
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<any>([]);
   // State for modal visibility
   const [showModal, setShowModal] = useState(false);
+  const [refetch, setRefetch] = useState(false);
   // State for form fields
   const [form, setForm] = useState({
     name: "",
@@ -70,7 +74,8 @@ const AdminUsers = () => {
     nhis_number: "",
     phone: "",
     address: "",
-    profilePic: ""
+    profilePic: null as File | null,
+    password: "",
   });
   // State for profile picture preview
   const [preview, setPreview] = useState("");
@@ -87,15 +92,19 @@ const AdminUsers = () => {
   // Dummy patient history and appointments (replace with real data later)
   const dummyHistory = [
     { date: "2024-03-01", description: "General Checkup", notes: "All good." },
-    { date: "2024-02-15", description: "Malaria Treatment", notes: "Prescribed medication." }
+    {
+      date: "2024-02-15",
+      description: "Malaria Treatment",
+      notes: "Prescribed medication.",
+    },
   ];
   const dummyAppointments = [
     { date: "2024-04-10", type: "Virtual", status: "Completed" },
-    { date: "2024-05-01", type: "In-person", status: "Upcoming" }
+    { date: "2024-05-01", type: "In-person", status: "Upcoming" },
   ];
 
   // Filter users by NHIS number
-  const filteredUsers = users.filter(user =>
+  const filteredUsers = users.filter((user: any) =>
     user.nhis_number.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -111,7 +120,9 @@ const AdminUsers = () => {
   }
 
   // Handle input changes
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -122,36 +133,69 @@ const AdminUsers = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
-        setForm({ ...form, profilePic: reader.result as string });
+        setForm({ ...form, profilePic: file });
       };
       reader.readAsDataURL(file);
     }
   }
 
-  // Handle add user
-  function handleAddUser(e: React.FormEvent) {
-    e.preventDefault();
-    // Simple validation
-    if (!form.name || !form.email || !form.nhis_number) {
-      setMessage("Full name, email, and NHIS number are required.");
-      return;
-    }
-    const newUser = {
-      ...form,
-      id: Date.now(),
-      profilePic: form.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(form.name)}&background=0D8ABC&color=fff`
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        let allUsers = await getUsers();
+        allUsers = allUsers.filter((user: any) => user.role === "user");
+        setUsers(allUsers);
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      }
     };
-    setUsers([newUser, ...users]);
-    setShowModal(false);
-    setForm({ name: "", email: "", nhis_number: "", phone: "", address: "", profilePic: "" });
-    setPreview("");
-    setMessage("");
-  }
+    fetchBlogs();
+  }, [refetch]);
+
+  // Handle add user
+  //   function handleAddUser(e: React.FormEvent) {
+  //     e.preventDefault();
+  //     // Simple validation
+  //     if (!form.name || !form.email || !form.nhis_number) {
+  //       setMessage("Full name, email, and NHIS number are required.");
+  //       return;
+  //     }
+  //     const newUser = {
+  //       ...form,
+  //       id: Date.now(),
+  //       profilePic:
+  //         form.profilePic ||
+  //         `https://ui-avatars.com/api/?name=${encodeURIComponent(
+  //           form.name
+  //         )}&background=0D8ABC&color=fff`,
+  //     };
+  //     setUsers([newUser, ...users]);
+  //     setShowModal(false);
+  //     setForm({
+  //       name: "",
+  //       email: "",
+  //       nhis_number: "",
+  //       phone: "",
+  //       address: "",
+  //       profilePic: null as File | null,
+  //       password: "",
+  //     });
+  //     setPreview("");
+  //     setMessage("");
+  //   }
 
   // Handle open modal
   function openModal() {
     setShowModal(true);
-    setForm({ name: "", email: "", nhis_number: "", phone: "", address: "", profilePic: "" });
+    setForm({
+      name: "",
+      email: "",
+      nhis_number: "",
+      phone: "",
+      address: "",
+      profilePic: null as File | null,
+      password: "",
+    });
     setPreview("");
     setMessage("");
   }
@@ -159,10 +203,100 @@ const AdminUsers = () => {
   // Handle close modal
   function closeModal() {
     setShowModal(false);
-    setForm({ name: "", email: "", nhis_number: "", phone: "", address: "", profilePic: "" });
+    setForm({
+      name: "",
+      email: "",
+      nhis_number: "",
+      phone: "",
+      address: "",
+      profilePic: null as File | null,
+      password: "",
+    });
     setPreview("");
     setMessage("");
   }
+
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = "dvikxcdh3";
+    const uploadPreset = "newpreset"; // or try "ml_default" if you're okay using signed preset
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("cloud_name", cloudName);
+    // if preset restricts folder
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Image upload failed");
+    }
+
+    return data.secure_url;
+  };
+
+  const generateNHISId = (): string => {
+    const chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let randomPart = "";
+    for (let i = 0; i < 5; i++) {
+      randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return `NHIS${randomPart}`;
+  };
+
+  const createUserAsAdmin = async (e: any) => {
+    e.preventDefault();
+    const { email, password, name, phone, address, profilePic } = form;
+
+    if (!form.name || !form.email || !form.password) {
+      setMessage("Full name, email, and NHIS number are required.");
+      return;
+    }
+
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const newUser = userCredential.user;
+
+    try {
+      const imageUrl = await uploadToCloudinary(profilePic as File);
+      const nhisId = generateNHISId();
+
+      // Save to Firestore
+      await createUser({
+        uid: newUser.uid,
+        email,
+        name,
+        role: "user",
+        nhis_number: nhisId,
+        phone,
+        address,
+        profilePic: imageUrl,
+        wallet: 0,
+      });
+
+      // Optional: Sign out the new user immediately
+      await signOut(auth);
+
+      let allUsers = await getUsers();
+      allUsers = allUsers.filter((user: any) => user.role === "user");
+      setUsers(allUsers);
+      setRefetch(!refetch);
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-4 w-full">
@@ -202,7 +336,7 @@ const AdminUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
+              {filteredUsers.map((user: any) => (
                 <tr key={user.id} className="border-b">
                   <td className="p-2">
                     <img
@@ -241,7 +375,7 @@ const AdminUsers = () => {
               &times;
             </button>
             <h3 className="text-lg font-bold mb-4">Add User</h3>
-            <form onSubmit={handleAddUser} className="space-y-4">
+            <form onSubmit={(e) => createUserAsAdmin(e)} className="space-y-4">
               <div className="flex flex-col items-center">
                 <div className="relative mb-2">
                   <img
@@ -310,25 +444,15 @@ const AdminUsers = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  NHIS Number
+                  Phone Number
                 </label>
-                <input
-                  type="text"
-                  name="nhis_number"
-                  className="w-full border rounded px-2 py-1"
-                  value={form.nhis_number}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
                 <input
                   type="tel"
                   name="phone"
                   className="w-full border rounded px-2 py-1"
                   value={form.phone}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div>
@@ -341,6 +465,17 @@ const AdminUsers = () => {
                   value={form.address}
                   onChange={handleChange}
                   rows={2}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Password
+                </label>
+                <input
+                  name="password"
+                  className="w-full border rounded px-2 py-1"
+                  value={form.password}
+                  onChange={handleChange}
                 />
               </div>
               {message && <div className="text-red-500 text-sm">{message}</div>}
