@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import type { Lang } from "../pages/publicPages/landing/index";
 import { Link } from "react-router-dom";
+import { useUser } from "../context/useUser";
 
 /**
  * Navbar component with navigation links, language selector, and responsive hamburger menu for mobile.
@@ -16,16 +17,18 @@ export const Navbar = ({
   setLang: (l: Lang) => void;
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useUser();
 
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Find Care", href: "/find-care" },
-    // { label: "Book Appointment", href: "/book-appointment" },
-    // { label: "Telemedicine", href: "/telemedicine" },
-    // { label: "Wallet", href: "/wallet" },
     { label: "Education", href: "/health-education" },
     { label: "Support", href: "/contact" },
-    { label: "Login", href: "/auth/login" },
+    !user
+      ? { label: "Login", href: "/auth/login" }
+      : user.role === "admin"
+      ? { label: "Dashboard", href: "/admin" }
+      : { label: "Dashboard", href: "/user" },
   ];
 
   // Language names for selector

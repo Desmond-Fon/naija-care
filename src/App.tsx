@@ -17,34 +17,40 @@ import AdminAppointments from "./pages/admin/administrator/adminAppointments";
 import AdminUsers from "./pages/admin/administrator/adminUsers";
 import AdminLayout from "./layout/AdminLayout";
 import AdminDoctors from "./pages/admin/administrator/adminDoctors";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import { UserProvider } from "./context/useUser";
 
 function App() {
   return (
     <>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PublicLayout />}>
-            <Route path="/" element={<Landing />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/find-care" element={<FindCare />} />
-            <Route path="/health-education" element={<Education />} />
-          </Route>
-          <Route path="/auth" element={<AuthLayout />}>
-            <Route path="login" element={<Login />} />
-          </Route>
-          <Route path="/user" element={<UserLayout />}>
-            <Route path="" element={<Overview />} />
-            <Route path="appointments" element={<Appointments />} />
-            <Route path="wallet" element={<Wallet />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="" element={<AdminOverview />} />
-            <Route path="appointments" element={<AdminAppointments />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="doctors" element={<AdminDoctors />} />
-          </Route>
-        </Routes>
+        <ToastContainer />
+        <UserProvider>
+          <Routes>
+            <Route path="/" element={<PublicLayout />}>
+              <Route path="/" element={<Landing />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/find-care" element={<FindCare />} />
+              <Route path="/health-education" element={<Education />} />
+            </Route>
+            <Route path="/auth" element={<AuthLayout />}>
+              <Route path="login" element={<Login />} />
+            </Route>
+            <Route path="/user" element={<UserLayout />}>
+              <Route path="" element={<Overview />} />
+              <Route path="appointments" element={<Appointments />} />
+              <Route path="wallet" element={<Wallet />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="" element={<AdminOverview />} />
+              <Route path="appointments" element={<AdminAppointments />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="doctors" element={<AdminDoctors />} />
+            </Route>
+          </Routes>
+        </UserProvider>
       </BrowserRouter>
     </>
   );

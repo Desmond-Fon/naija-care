@@ -4,6 +4,7 @@ import { useState } from "react";
 import { auth } from "../../../lib/firebase";
 import { getUserById } from "../../../lib/helpers/user";
 import { useNavigate } from "react-router-dom";
+import { useAppToast } from "../../../lib/useAppToast";
 
 /**
  * Login page component with role selection (user/admin).
@@ -11,6 +12,7 @@ import { useNavigate } from "react-router-dom";
  */
 const Login = () => {
   const navigate = useNavigate()
+  const toast = useAppToast()
   // State for form fields
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,18 +27,12 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    // Simulate login logic (replace with real API call)
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   if (!email || !password) {
-    //     setError("Please enter both email and password.");
-    //   } else {
-    //     // Redirect or show success (not implemented)
-    //     alert(`Logged in as ${isAdmin ? "Admin" : "User"}`);
-    //   }
-    // }, 1000);
     if (!email || !password) {
-          setError("Please enter both email and password.");
+          // setError("Please enter both email and password.");
+          toast({
+            description: "Please enter both email and password.",
+            status: "error",
+          });
           return
         }
     try {
@@ -53,22 +49,26 @@ const Login = () => {
         const userData = userDoc.data();
         if (userData.role === 'admin' && isAdmin) {
           // Redirect to admin dashboard
-          // toast({
-          //   description: "Welcome to the admin dashboard!",
-          //   status: "success",
-          // });
+          toast({
+            description: "Welcome to the admin dashboard!",
+            status: "success",
+          });
           navigate("/admin");
           setLoading(false);
         } else if (userData.role === 'user') {
+          toast({
+            description: "Welcome to the user dashboard!",
+            status: "success",
+          });
           navigate("/user");
           setLoading(false);
         } else {
           // Sign user out
           await auth.signOut();
-          // toast({
-          //   description: "Access denied. You are not an admin.",
-          //   status: "error",
-          // });
+          toast({
+            description: "Access denied. You are not an admin.",
+            status: "error",
+          });
           setLoading(false);
         }
       } else {
@@ -78,10 +78,10 @@ const Login = () => {
     } catch (error: any) {
       setLoading(false);
       console.log(error)
-      // toast({
-      //   description: error.message || "Access denied. You are not an admin.",
-      //   status: "error",
-      // });
+      toast({
+        description: error.message || "Access denied. You are not an admin.",
+        status: "error",
+      });
     }
   };
 

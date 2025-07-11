@@ -10,7 +10,10 @@ import {
   Users,
   Cog,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebase";
+import { useAppToast } from "../lib/useAppToast";
 
 /**
  * Responsive user dashboard layout with sidebar (desktop) and top nav (mobile).
@@ -24,6 +27,8 @@ const navItems = [
 ];
 
 const AdminLayout = () => {
+  const toast = useAppToast();
+  const navigate = useNavigate();
   // State for active nav item
   const [active, setActive] = useState("Overview");
   // State for profile dropdown
@@ -33,7 +38,12 @@ const AdminLayout = () => {
 
   // Handle logout (replace with real logic)
   const handleLogout = () => {
-    alert("Logged out!");
+    toast({
+      status: "info",
+      description: "Log out successful",
+    });
+    signOut(auth);
+    navigate("/");
     // Redirect or clear auth state here
   };
 

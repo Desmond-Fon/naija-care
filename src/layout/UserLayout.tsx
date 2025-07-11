@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   LogOut,
-//   User,
+  //   User,
   LayoutDashboard,
   Calendar,
   Wallet,
@@ -10,7 +10,10 @@ import {
   UserRoundPen,
   Cog,
 } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useAppToast } from "../lib/useAppToast";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 /**
  * Responsive user dashboard layout with sidebar (desktop) and top nav (mobile).
@@ -24,6 +27,8 @@ const navItems = [
 ];
 
 const UserLayout = () => {
+  const toast = useAppToast();
+  const navigate = useNavigate();
   // State for active nav item
   const [active, setActive] = useState("Overview");
   // State for profile dropdown
@@ -33,7 +38,12 @@ const UserLayout = () => {
 
   // Handle logout (replace with real logic)
   const handleLogout = () => {
-    alert("Logged out!");
+    toast({
+      status: "info",
+      description: "Log out successful",
+    });
+    signOut(auth);
+    navigate("/");
     // Redirect or clear auth state here
   };
 

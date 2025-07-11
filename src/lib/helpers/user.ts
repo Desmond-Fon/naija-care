@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getAuth } from "firebase/auth";
 import { auth } from "../firebase";
 import { usersCollection } from "./db";
-import { doc, getDocs, setDoc, getDoc } from "firebase/firestore";
+import { doc, getDocs, setDoc, getDoc, updateDoc } from "firebase/firestore";
 
 export const getCurrentUserRole = async () => {
   const user = auth.currentUser;
@@ -12,6 +13,20 @@ export const getCurrentUserRole = async () => {
 
   if (userSnap.exists()) {
     return userSnap.data().role;
+  }
+
+  return null;
+};
+
+export const getCurrentUser = async () => {
+  const user = auth.currentUser;
+  if (!user) return null;
+
+  const docRef = doc(usersCollection, user.uid);
+  const userSnap = await getDoc(docRef);
+
+  if (userSnap.exists()) {
+    return userSnap.data();
   }
 
   return null;
@@ -40,5 +55,21 @@ export const getUsers = async () => {
     ...doc.data(),
   }));
   return users;
+};
+
+export const updateUser = async (
+  uid: string,
+  updatedValues: Partial<any>
+) => {
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  if (user) {
+    const userRef = doc(usersCollection, uid);
+    await updateDoc(userRef, updatedValues);
+    return true; // or return updatedValues if needed
+  } else {
+    throw new Error("User is not authenticated. Please log in to update a user.");
+  }
 };
 

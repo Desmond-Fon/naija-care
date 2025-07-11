@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import React, { useState, useRef, useEffect } from "react";
 import { createUser, getUsers } from "../../../../lib/helpers/user";
 import { auth } from "../../../../lib/firebase";
+import { useAppToast } from "../../../../lib/useAppToast";
 
 // import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 // import { auth } from "@/lib/firebase";
@@ -62,6 +63,7 @@ import { auth } from "../../../../lib/firebase";
  * The add user form includes full name, email, profile picture, NHIS number, phone, and address.
  */
 const AdminUsers = () => {
+    const toast = useAppToast()
   // State for users
   const [users, setUsers] = useState<any>([]);
   // State for modal visibility
@@ -152,38 +154,6 @@ const AdminUsers = () => {
     fetchBlogs();
   }, [refetch]);
 
-  // Handle add user
-  //   function handleAddUser(e: React.FormEvent) {
-  //     e.preventDefault();
-  //     // Simple validation
-  //     if (!form.name || !form.email || !form.nhis_number) {
-  //       setMessage("Full name, email, and NHIS number are required.");
-  //       return;
-  //     }
-  //     const newUser = {
-  //       ...form,
-  //       id: Date.now(),
-  //       profilePic:
-  //         form.profilePic ||
-  //         `https://ui-avatars.com/api/?name=${encodeURIComponent(
-  //           form.name
-  //         )}&background=0D8ABC&color=fff`,
-  //     };
-  //     setUsers([newUser, ...users]);
-  //     setShowModal(false);
-  //     setForm({
-  //       name: "",
-  //       email: "",
-  //       nhis_number: "",
-  //       phone: "",
-  //       address: "",
-  //       profilePic: null as File | null,
-  //       password: "",
-  //     });
-  //     setPreview("");
-  //     setMessage("");
-  //   }
-
   // Handle open modal
   function openModal() {
     setShowModal(true);
@@ -258,7 +228,11 @@ const AdminUsers = () => {
     const { email, password, name, phone, address, profilePic } = form;
 
     if (!form.name || !form.email || !form.password) {
-      setMessage("Full name, email, and NHIS number are required.");
+    //   setMessage("Full name, email, and NHIS number are required.");
+      toast({
+        status: 'error',
+        description: "All fields are required"
+      })
       return;
     }
 
@@ -293,8 +267,17 @@ const AdminUsers = () => {
       allUsers = allUsers.filter((user: any) => user.role === "user");
       setUsers(allUsers);
       setRefetch(!refetch);
-    } catch (error) {
+      setShowModal(false)
+      toast({
+        status: "success",
+        description: "User added successfully",
+      });
+    } catch (error : any) {
       console.error("Error creating user:", error);
+      toast({
+        status: 'error',
+        description: error?.message || "Error creating user"
+      })
     }
   };
 

@@ -1,35 +1,37 @@
-import React, { useState, useRef } from "react";
-
-// Dummy user data for demonstration
-const dummyProfile = {
-  name: "Jane Doe",
-  email: "jane.doe@email.com",
-  phone: "+2348012345678",
-  nhis_number: "NHIS1223JD",
-  address: "123 Main Street, Lagos, Nigeria",
-  profilePic: "https://ui-avatars.com/api/?name=Jane+Doe&background=0D8ABC&color=fff"
-};
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState, useRef, useEffect } from "react";
+import { useUser } from "../../../../context/useUser";
+import { useAppToast } from "../../../../lib/useAppToast";
+import { updateUser } from "../../../../lib/helpers/user";
 
 /**
  * Profile page component for viewing and editing user details, including profile picture.
- * Allows editing of name, email, phone, NHIS number, address, and profile picture.
+ * Optimized to always sync state with user context and update UI on edits or refresh.
  */
 const Profile = () => {
-  // State for profile data (replace with real data fetching in production)
-  const [profile, setProfile] = useState(dummyProfile);
+  const { user, setRefetch, refetch } = useUser();
+  const toast = useAppToast();
   // State for edit mode
   const [editMode, setEditMode] = useState(false);
   // State for form fields
-  const [form, setForm] = useState(profile);
+  const [form, setForm] = useState(user ? user : {});
   // State for messages
   const [message, setMessage] = useState("");
   // State for profile picture preview
-  const [preview, setPreview] = useState(profile.profilePic);
+  const [preview, setPreview] = useState(user?.profilePic || "");
   // Ref for file input
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Keep form and preview in sync with user context
+  useEffect(() => {
+    setForm(user ? user : {});
+    setPreview(user?.profilePic || "");
+  }, [user, refetch]);
+
   // Handle input changes
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
@@ -40,29 +42,74 @@ const Profile = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
-        setForm({ ...form, profilePic: reader.result as string });
+        setForm({ ...form, profilePic: file });
       };
       reader.readAsDataURL(file);
     }
   }
 
-  // Handle save
-  function handleSave(e: React.FormEvent) {
+  // Upload image to Cloudinary
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const cloudName = "dvikxcdh3";
+    const uploadPreset = "newpreset";
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", uploadPreset);
+    formData.append("cloud_name", cloudName);
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${cloudName}/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error?.message || "Image upload failed");
+    }
+    return data.secure_url;
+  };
+
+  // Handle save profile
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple validation
-    if (!form.name || !form.email) {
-      setMessage("Name and email are required.");
+    if (!form.phone || !form.address || !form.profilePic) {
+      toast({
+        status: "error",
+        description: "Please fill in all required fields.",
+      });
       return;
     }
-    setProfile(form);
-    setEditMode(false);
-    setMessage("Profile updated successfully.");
-  }
+    try {
+      let imageUrl = form.profilePic;
+      if (form.profilePic instanceof File) {
+        imageUrl = await uploadToCloudinary(form.profilePic);
+      }
+      const updatedUser = {
+        ...form,
+        profilePic: imageUrl,
+        updatedAt: new Date().toISOString(),
+      };
+      await updateUser(user.uid, updatedUser);
+      toast({
+        status: "success",
+        description: "Profile updated successfully!",
+      });
+      setRefetch((prev: boolean) => !prev); // Triggers user context update
+      setEditMode(false);
+      setMessage("");
+    } catch (error: any) {
+      toast({
+        status: "error",
+        description: error.message || "Something went wrong while updating.",
+      });
+    }
+  };
 
   // Handle cancel
   function handleCancel() {
-    setForm(profile);
-    setPreview(profile.profilePic);
+    setForm(user ? user : {});
+    setPreview(user?.profilePic || "");
     setEditMode(false);
     setMessage("");
   }
@@ -85,7 +132,20 @@ const Profile = () => {
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Change profile picture"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z" /></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2a2.828 2.828 0 11-4-4 2.828 2.828 0 014 4z"
+                  />
+                </svg>
               </button>
             )}
             <input
@@ -105,8 +165,8 @@ const Profile = () => {
                 type="text"
                 name="name"
                 className="w-full border rounded px-2 py-1"
-                value={form.name}
-                onChange={handleChange}
+                value={form.name || ""}
+                readOnly
                 required
               />
             </div>
@@ -116,8 +176,8 @@ const Profile = () => {
                 type="text"
                 name="nhis_number"
                 className="w-full border rounded px-2 py-1"
-                value={form.nhis_number}
-                onChange={handleChange}
+                value={form.nhis_number || ""}
+                readOnly
                 required
               />
             </div>
@@ -127,8 +187,8 @@ const Profile = () => {
                 type="email"
                 name="email"
                 className="w-full border rounded px-2 py-1"
-                value={form.email}
-                onChange={handleChange}
+                value={form.email || ""}
+                readOnly
                 required
               />
             </div>
@@ -138,8 +198,9 @@ const Profile = () => {
                 type="tel"
                 name="phone"
                 className="w-full border rounded px-2 py-1"
-                value={form.phone}
+                value={form.phone || ""}
                 onChange={handleChange}
+                required
               />
             </div>
             <div>
@@ -147,9 +208,10 @@ const Profile = () => {
               <textarea
                 name="address"
                 className="w-full border rounded px-2 py-1"
-                value={form.address}
+                value={form.address || ""}
                 onChange={handleChange}
                 rows={2}
+                required
               />
             </div>
             {message && <div className="text-red-500 text-sm">{message}</div>}
@@ -173,23 +235,23 @@ const Profile = () => {
           <div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">Name</span>
-              <span className="font-semibold">{profile.name}</span>
+              <span className="font-semibold">{form.name}</span>
             </div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">NHIS Number</span>
-              <span className="font-semibold">{profile.nhis_number}</span>
+              <span className="font-semibold">{form.nhis_number}</span>
             </div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">Email</span>
-              <span className="font-semibold">{profile.email}</span>
+              <span className="font-semibold">{form.email}</span>
             </div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">Phone</span>
-              <span className="font-semibold">{profile.phone}</span>
+              <span className="font-semibold">{form.phone}</span>
             </div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">Address</span>
-              <span className="font-semibold">{profile.address}</span>
+              <span className="font-semibold">{form.address}</span>
             </div>
             <div className="flex justify-end">
               <button
@@ -199,7 +261,9 @@ const Profile = () => {
                 Edit Profile
               </button>
             </div>
-            {message && <div className="text-green-600 text-sm mt-3">{message}</div>}
+            {message && (
+              <div className="text-green-600 text-sm mt-3">{message}</div>
+            )}
           </div>
         )}
       </div>
