@@ -355,7 +355,7 @@ export const removeFundsFromWallet = async (
         transaction.method
       }`,
       transaction,
-    };
+    }; 
   } catch (error) {
     console.error("Error deducting wallet:", error);
     throw new Error("Could not deduct funds. Please try again.");
