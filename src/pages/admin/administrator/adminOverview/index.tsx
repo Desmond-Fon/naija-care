@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { getAdminStats, getRecentActivities } from "../../../../lib/helpers/user";
 import { useAppToast } from "../../../../lib/useAppToast";
+import { auth } from "../../../../lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 // const recentActivities = [
 //   { id: 1, type: "user", message: "New user registered: Jane Doe", time: "2 mins ago" },
@@ -21,39 +23,52 @@ const AdminOverview = () => {
   const [activitiesLoading, setActivitiesLoading] = useState(true);
   const [activitiesError, setActivitiesError] = useState("");
 
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const data = await getAdminStats();
-        setStats(data);
-      } catch (err: any) {
-        toast({
-            status: 'error',
-            description: err || err.message || 'Failed to load statistics'
-        })
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setActivitiesLoading(true);
+        setActivitiesError("");
+
+        try {
+          const data = await getAdminStats(user.uid);
+          setStats(data);
+        } catch (err: any) {
+          toast({
+            status: "error",
+            description: err?.message || "Failed to load statistics",
+          });
+        } finally {
+          setActivitiesLoading(false);
+        }
       }
-    };
-    fetchStats();
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, []);
 
   useEffect(() => {
-    const fetchActivities = async () => {
-      setActivitiesLoading(true);
-      setActivitiesError("");
-      try {
-        const acts = await getRecentActivities(10);
-        setActivities(acts);
-      } catch (err: any) {
-        toast({
-          status: "error",
-          description: err || err.message || "Failed to load recent activities",
-        });
-        setActivitiesError("Failed to load recent activities.");
-      } finally {
-        setActivitiesLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setActivitiesLoading(true);
+        setActivitiesError("");
+
+        try {
+          const acts = await getRecentActivities(user.uid, 10);
+          setActivities(acts);
+        } catch (err: any) {
+          toast({
+            status: "error",
+            description: err?.message || "Failed to load recent activities",
+          });
+          setActivitiesError("Failed to load recent activities.");
+        } finally {
+          setActivitiesLoading(false);
+        }
       }
-    };
-    fetchActivities();
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, []);
 
   const activityColors: Record<string, string> = {

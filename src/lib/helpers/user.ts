@@ -43,6 +43,10 @@ export const getCurrentUser = async () => {
   return null;
 };
 
+
+
+// ADMIN
+
 export const createUser = async (newUser: any) => {
   const role = await getCurrentUserRole();
 
@@ -60,12 +64,24 @@ export const getUserById = (userID: string) => {
   return getDoc(doc(usersCollection, userID));
 };
 
-export const getUsers = async () => {
+export const getAllUsers = async () => {
   const snapshot = await getDocs(usersCollection);
   const users = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
+  return users;
+};
+
+export const getUsersByAdmin = async (adminId: string) => {
+  const snapshot = await getDocs(usersCollection);
+  const users = snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    .filter((user: any) => user.hospitalId === adminId); // Only users linked to the admin
+
   return users;
 };
 
@@ -249,6 +265,32 @@ export const getAllAppointmentsForAdmin = async () => {
   return allAppointments;
 };
 
+export const getAppointmentsForAdmin = async (adminId: string) => {
+  const usersSnap = await getDocs(usersCollection);
+  const adminAppointments: any[] = [];
+
+  usersSnap.forEach((docSnap) => {
+    const data = docSnap.data();
+
+    // Only consider users with hospitalId matching the admin's UID
+    if (data.hospitalId === adminId) {
+      const appointments = Array.isArray(data.appointments)
+        ? data.appointments
+        : [];
+
+      appointments.forEach((appt: any) => {
+        adminAppointments.push({
+          ...appt,
+          userId: docSnap.id,
+          userEmail: data.email || "",
+        });
+      });
+    }
+  });
+
+  return adminAppointments;
+};
+
 export const updateAppointmentForAdmin = async (
   userId: string,
   appointmentId: string,
@@ -365,7 +407,7 @@ export const removeFundsFromWallet = async (
 
 
 // STATS FOR ADMIN
-export const getAdminStats = async () => {
+export const getAdminStatsAll = async () => {
   // Import necessary Firestore functions
   // Collections
   const usersCol = collection(database, "users");
@@ -394,7 +436,7 @@ export const getAdminStats = async () => {
   return { users, doctors, appointments, revenue };
 };
 
-export const getRecentActivities = async (limit = 10) => {
+export const getRecentActivitiesAll = async (limit = 10) => {
   const usersCol = collection(database, "users");
   const usersSnap = await getDocs(usersCol);
   let activities: any[] = [];
@@ -440,6 +482,109 @@ export const getRecentActivities = async (limit = 10) => {
           });
         }
       });
+    }
+  });
+
+  // Sort by timestamp descending and limit
+  activities = activities
+    .filter((a) => a.timestamp)
+    .sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )
+    .slice(0, limit);
+
+  return activities;
+};
+
+export const getAdminStats = async (adminId: string) => {
+  const usersCol = collection(database, "users");
+  const usersSnap = await getDocs(usersCol);
+
+  let users = 0;
+  let doctors = 0;
+  let appointments = 0;
+  let revenue = 0;
+
+  usersSnap.forEach((doc) => {
+    const data = doc.data();
+
+    // Only process users under this admin
+    if (data.hospitalId === adminId) {
+      if (data.role === "user") users++;
+      if (data.role === "doctor") doctors++;
+
+      if (Array.isArray(data.appointments)) {
+        appointments += data.appointments.length;
+
+        data.appointments.forEach((appt: any) => {
+          if (
+            appt.paymentStatus === "paid" &&
+            typeof appt.amount === "number"
+          ) {
+            revenue += appt.amount;
+          }
+        });
+      }
+    }
+  });
+
+  return { users, doctors, appointments, revenue };
+};
+
+export const getRecentActivities = async (adminId: string, limit = 10) => {
+  const usersCol = collection(database, "users");
+  const usersSnap = await getDocs(usersCol);
+  let activities: any[] = [];
+
+  usersSnap.forEach((doc) => {
+    const data = doc.data();
+
+    // Only include users under this admin
+    if (data.hospitalId === adminId) {
+      // New user registration
+      if (data.createdAt) {
+        activities.push({
+          type: "user",
+          message: `New user registered: ${data.name || data.email}`,
+          timestamp: data.createdAt,
+        });
+      }
+
+      // Doctor added
+      if (data.role === "doctor" && data.createdAt) {
+        activities.push({
+          type: "doctor",
+          message: `Dr. ${data.name || data.email} added to ${
+            data.specialty || "the platform"
+          }`,
+          timestamp: data.createdAt,
+        });
+      }
+
+      // Appointments
+      if (Array.isArray(data.appointments)) {
+        data.appointments.forEach((appt) => {
+          if (appt.createdAt) {
+            activities.push({
+              type: "appointment",
+              message: `Appointment confirmed for ${data.name || data.email}`,
+              timestamp: appt.createdAt,
+            });
+          }
+
+          // Payments
+          if (appt.paymentStatus === "paid" && appt.paymentDate) {
+            activities.push({
+              type: "payment",
+              message: `Payment received from ${data.name || data.email} (₦${
+                appt.amount?.toLocaleString?.() || appt.amount
+              })`,
+              timestamp: appt.paymentDate,
+            });
+          }
+        });
+      }
     }
   });
 

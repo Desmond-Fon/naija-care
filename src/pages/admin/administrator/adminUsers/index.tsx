@@ -1,9 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 import React, { useState, useRef, useEffect } from "react";
-import { createUser, getUsers } from "../../../../lib/helpers/user";
+import { createUser, getUsersByAdmin } from "../../../../lib/helpers/user";
 import { auth } from "../../../../lib/firebase";
 import { useAppToast } from "../../../../lib/useAppToast";
+import { useUser } from "../../../../context/useUser";
 
 /**
  * AdminUsers page: Lists users under this admin and provides a modal to add a user.
@@ -11,6 +17,7 @@ import { useAppToast } from "../../../../lib/useAppToast";
  */
 const AdminUsers = () => {
   const toast = useAppToast();
+  const { user } = useUser();
   // State for users
   const [users, setUsers] = useState<any>([]);
   // State for modal visibility
@@ -88,17 +95,36 @@ const AdminUsers = () => {
     }
   }
 
+  // useEffect(() => {
+  //   const fetchBlogs = async () => {
+  //     try {
+  //       let allUsers = await getUsers();
+  //       allUsers = allUsers.filter((user: any) => user.role === "user");
+  //       setUsers(allUsers);
+  //     } catch (error) {
+  //       console.error("Error fetching blogs:", error);
+  //     }
+  //   };
+  //   fetchBlogs();
+  // }, [refetch]);
+
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        let allUsers = await getUsers();
-        allUsers = allUsers.filter((user: any) => user.role === "user");
-        setUsers(allUsers);
-      } catch (error) {
-        console.error("Error fetching blogs:", error);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          let allUsers = await getUsersByAdmin(user.uid);
+          allUsers = allUsers.filter((user: any) => user.role === "user");
+          setUsers(allUsers);
+        } catch (err: any) {
+          toast({
+            status: "error",
+            description: err?.message || "Failed to load users",
+          });
+        }
       }
-    };
-    fetchBlogs();
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, [refetch]);
 
   // Handle open modal
@@ -204,13 +230,18 @@ const AdminUsers = () => {
         phone,
         address,
         profilePic: imageUrl,
+        hospitalId: user.uid,
         wallet: 0,
       });
 
       // Optional: Sign out the new user immediately
       await signOut(auth);
 
-      let allUsers = await getUsers();
+      // let allUsers = await getUsers();
+      // allUsers = allUsers.filter((user: any) => user.role === "user");
+      // setUsers(allUsers);
+
+      let allUsers = await getUsersByAdmin(user.uid);
       allUsers = allUsers.filter((user: any) => user.role === "user");
       setUsers(allUsers);
       setRefetch(!refetch);

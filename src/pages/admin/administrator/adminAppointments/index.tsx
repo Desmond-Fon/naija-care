@@ -1,9 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
-import { getAllAppointmentsForAdmin, updateAppointmentForAdmin } from "../../../../lib/helpers/user";
+import {
+  getAppointmentsForAdmin,
+  updateAppointmentForAdmin,
+} from "../../../../lib/helpers/user";
 import { useAppToast } from "../../../../lib/useAppToast";
-
+import { auth } from "../../../../lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 // Appointment type definition (reuse from user appointments)
 interface Appointment {
@@ -67,52 +71,50 @@ interface Appointment {
  */
 const AdminAppointments = () => {
   // State for appointments
-  const toast = useAppToast()
+  const toast = useAppToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   // State for editing appointment
-//   const [editing, setEditing] = useState<Appointment | null>(null);
-//   // State for edit form
-//   const [form, setForm] = useState({
-//     amount: 0,
-//     googleMeetLink: "",
-//     status: "pending" as Appointment["status"],
-//     paymentStatus: "unpaid" as Appointment["paymentStatus"],
-//     doctor: "",
-//   });
-//   // State for messages
-//   const [message, setMessage] = useState("");
-// State for editing appointment
-const [editing, setEditing] = useState<Appointment | null>(null);
-// State for edit form
-const [form, setForm] = useState({
-  amount: 0,
-  googleMeetLink: "",
-  status: "pending" as Appointment["status"],
-  paymentStatus: "unpaid" as Appointment["paymentStatus"],
-  doctor: "",
-  note: "",
-});
-// State for messages
-const [message, setMessage] = useState("");
+  //   const [editing, setEditing] = useState<Appointment | null>(null);
+  //   // State for edit form
+  //   const [form, setForm] = useState({
+  //     amount: 0,
+  //     googleMeetLink: "",
+  //     status: "pending" as Appointment["status"],
+  //     paymentStatus: "unpaid" as Appointment["paymentStatus"],
+  //     doctor: "",
+  //   });
+  //   // State for messages
+  //   const [message, setMessage] = useState("");
+  // State for editing appointment
+  const [editing, setEditing] = useState<Appointment | null>(null);
+  // State for edit form
+  const [form, setForm] = useState({
+    amount: 0,
+    googleMeetLink: "",
+    status: "pending" as Appointment["status"],
+    paymentStatus: "unpaid" as Appointment["paymentStatus"],
+    doctor: "",
+    note: "",
+  });
+  // State for messages
+  const [message, setMessage] = useState("");
 
-  // Fetch all appointments on mount
   useEffect(() => {
-    async function fetchAppointments() {
-      try {
-        const all = await getAllAppointmentsForAdmin();
-        setAppointments(all);
-      } catch (error: any) {
-        toast({
-          status: "error",
-          description:
-            error ||
-            error?.message ||
-            "Failed to load appointment. Please try again.",
-        });
-        setMessage("Failed to load appointments.");
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const all = await getAppointmentsForAdmin(user.uid);
+          setAppointments(all);
+        } catch (err: any) {
+          toast({
+            status: "error",
+            description: err?.message || "Failed to load appointment",
+          });
+        }
       }
-    }
-    fetchAppointments();
+    });
+
+    return () => unsubscribe(); // Cleanup listener on unmount
   }, []);
   /**
    * Open edit modal for an appointment
@@ -138,18 +140,14 @@ const [message, setMessage] = useState("");
     if (!editing) return;
     setMessage("");
     try {
-      await updateAppointmentForAdmin(
-        editing.userId!,
-        editing.id,
-        {
-          amount: form.amount,
-          googleMeetLink: form.googleMeetLink || undefined,
-          status: form.status,
-          paymentStatus: form.paymentStatus,
-          doctor: form.doctor,
-          note: form.note,
-        }
-      );
+      await updateAppointmentForAdmin(editing.userId!, editing.id, {
+        amount: form.amount,
+        googleMeetLink: form.googleMeetLink || undefined,
+        status: form.status,
+        paymentStatus: form.paymentStatus,
+        doctor: form.doctor,
+        note: form.note,
+      });
       setAppointments(
         appointments.map((a) =>
           a.id === editing.id
@@ -167,13 +165,13 @@ const [message, setMessage] = useState("");
       );
       setEditing(null);
     } catch (error: any) {
-        toast({
-          status: "error",
-          description:
-            error ||
-            error?.message ||
-            "Failed to update appointment. Please try again.",
-        });
+      toast({
+        status: "error",
+        description:
+          error ||
+          error?.message ||
+          "Failed to update appointment. Please try again.",
+      });
       setMessage("Failed to update appointment. Please try again.");
     }
   }
@@ -190,7 +188,10 @@ const [message, setMessage] = useState("");
    * Generate a Google Meet link for a virtual appointment
    */
   function generateMeetLink() {
-    setForm({ ...form, googleMeetLink: "https://meet.google.com/generated-link" });
+    setForm({
+      ...form,
+      googleMeetLink: "https://meet.google.com/generated-link",
+    });
   }
 
   return (
@@ -349,9 +350,7 @@ const [message, setMessage] = useState("");
                   type="text"
                   className="w-full border rounded px-2 py-1"
                   value={form.note}
-                  onChange={(e) =>
-                    setForm({ ...form, note: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, note: e.target.value })}
                   min={0}
                   required
                 />
