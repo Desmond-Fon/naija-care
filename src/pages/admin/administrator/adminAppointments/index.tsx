@@ -24,47 +24,8 @@ interface Appointment {
   googleMeetLink?: string;
   doctor?: string;
   note?: string;
+  profilePic?: string;
 }
-
-// Dummy data for demonstration
-// const initialAppointments: Appointment[] = [
-//   {
-//     id: "1",
-//     user: "Jane Doe",
-//     type: "virtual",
-//     date: "2024-05-10",
-//     time: "10:00",
-//     status: "pending",
-//     paymentStatus: "unpaid",
-//     amount: 5000,
-//     googleMeetLink: undefined,
-//     doctor: "Dr. Williams",
-//   },
-//   {
-//     id: "2",
-//     user: "John Smith",
-//     type: "in-person",
-//     date: "2024-05-12",
-//     time: "14:00",
-//     status: "confirmed",
-//     paymentStatus: "paid",
-//     amount: 7000,
-//     googleMeetLink: undefined,
-//     doctor: "Dr. Johnson",
-//   },
-//   {
-//     id: "3",
-//     user: "Jane Doe",
-//     type: "virtual",
-//     date: "2024-05-15",
-//     time: "09:00",
-//     status: "confirmed",
-//     paymentStatus: "unpaid",
-//     amount: 6000,
-//     googleMeetLink: "https://meet.google.com/example-link",
-//     doctor: "Dr. Williams",
-//   },
-// ];
 
 /**
  * AdminAppointments page: Lists all user appointments, allows status changes, editing payment amount, and managing Google Meet links.
@@ -73,18 +34,7 @@ const AdminAppointments = () => {
   // State for appointments
   const toast = useAppToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  // State for editing appointment
-  //   const [editing, setEditing] = useState<Appointment | null>(null);
-  //   // State for edit form
-  //   const [form, setForm] = useState({
-  //     amount: 0,
-  //     googleMeetLink: "",
-  //     status: "pending" as Appointment["status"],
-  //     paymentStatus: "unpaid" as Appointment["paymentStatus"],
-  //     doctor: "",
-  //   });
-  //   // State for messages
-  //   const [message, setMessage] = useState("");
+
   // State for editing appointment
   const [editing, setEditing] = useState<Appointment | null>(null);
   // State for edit form
@@ -194,6 +144,8 @@ const AdminAppointments = () => {
     });
   }
 
+  console.log(appointments);
+
   return (
     <div className="p-4 max-w-6xl mx-auto w-full">
       <h1 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
@@ -223,7 +175,16 @@ const AdminAppointments = () => {
             <tbody>
               {appointments.map((a) => (
                 <tr key={a.id} className="border-b">
-                  <td className="p-2">{a.name}</td>
+                  <td className="p-2 flex justify-start items-center gap-1">
+                    <span>
+                      <img
+                        className="w-10 h-10 rounded-full object-cover"
+                        src={a.profilePic}
+                        alt=""
+                      />
+                    </span>
+                    {a.name}
+                  </td>
                   <td className="p-2">
                     {a.doctor || (
                       <span className="text-gray-400 text-xs">Unassigned</span>
@@ -281,14 +242,30 @@ const AdminAppointments = () => {
                 <label className="block text-sm font-medium mb-1">
                   Doctor Assigned
                 </label>
-                <input
+                {/* <input
                   type="text"
                   className="w-full border rounded px-2 py-1"
                   value={form.doctor}
                   onChange={(e) => setForm({ ...form, doctor: e.target.value })}
                   placeholder="Enter doctor's name"
                   required
-                />
+                /> */}
+                <select
+                  name=""
+                  id=""
+                  className="w-full border rounded px-2 py-1"
+                  value={form.doctor}
+                  onChange={(e) => setForm({ ...form, doctor: e.target.value })}
+                  required
+                >
+                  <option value="" selected disabled>
+                    Assign a doctor
+                  </option>
+                  <option value="Dr. Williams">
+                    Dr. Williams (Cardiology)
+                  </option>
+                  <option value="Dr. Johnson">Dr. Johnson (Dermatology)</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Status</label>

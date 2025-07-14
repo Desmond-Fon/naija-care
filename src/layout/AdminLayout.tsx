@@ -9,6 +9,7 @@ import {
   X,
   Users,
   Cog,
+  Search
 } from "lucide-react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Overview", icon: LayoutDashboard, href: "/admin" },
   { label: "Appointment", icon: Calendar, href: "/admin/appointments" },
   { label: "Users", icon: Users, href: "/admin/users" },
+  { label: "Search Users", icon: Search, href: "/admin/search" },
   { label: "Doctors", icon: User, href: "/admin/doctors" },
 ];
 

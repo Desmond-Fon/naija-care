@@ -20,6 +20,7 @@ import AdminDoctors from "./pages/admin/administrator/adminDoctors";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { UserProvider } from "./context/useUser";
+import AdminSearch from "./pages/admin/administrator/adminSearch";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
               <Route path="appointments" element={<AdminAppointments />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="doctors" element={<AdminDoctors />} />
+              <Route path="search" element={<AdminSearch />} />
             </Route>
           </Routes>
         </UserProvider>

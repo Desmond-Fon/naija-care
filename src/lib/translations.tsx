@@ -8,7 +8,7 @@ export const translations = {
         fintech: "Financial Technology",
         mission: "Mission"
       },
-      title: "NaijaCare Website (with NHIS)",
+      title: "NaijaCare ",
       purpose:
         "NaijaCare is a user-friendly website that improves healthcare access in Nigeria, partnering with NHIS to connect citizens to hospitals and doctors, inspired by NHS and US platforms, with fintech for easy payments.",
       features: [
@@ -32,7 +32,7 @@ export const translations = {
         fintech: "Money Mata",
         mission: "Wetin We Want Do"
       },
-      title: "NaijaCare Website (wit NHIS)",
+      title: "NaijaCare",
       purpose:
         "NaijaCare na easy-to-use website wey dey help make healthcare beta for Nigeria, dey work wit NHIS to connect people to hospitals and dokitas, take idea from NHS and US platforms, plus fintech to make payment easy.",
       features: [

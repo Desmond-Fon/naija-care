@@ -21,6 +21,7 @@ interface Appointment {
   googleMeetLink?: string;
   message: string;
   amount?: number | any;
+  profilePic?: string;
 }
 
 // Main Appointments component
@@ -72,6 +73,7 @@ const Appointments = () => {
       await addAppointmentToCurrentUser(
         form.message, // message (not collected in form, so pass empty)
         user?.name, // name (not collected in form, so pass empty)
+        user?.profilePic,
         form.date,
         form.time,
         form.type,

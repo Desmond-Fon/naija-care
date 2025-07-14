@@ -51,7 +51,7 @@ const UserLayout = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!user) {
+      if (!user || user?.role === "admin") {
         toast({
           status: "error",
           description: "Please login to access your dashboard",

@@ -13,6 +13,7 @@ import {
 
 import { translations } from "../../../lib/translations";
 import { Navbar } from "../../../components/Nav";
+import { Link } from "react-router-dom";
 
 type TranslationSection = {
   title: string;
@@ -55,18 +56,18 @@ const Hero = ({ t }: { t: Translation }) => (
         </p>
 
         <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
-          <a
-            href="#find-care"
+          <Link
+            to="/find-care"
             className="bg-white text-blue-600 px-8 py-4 rounded-full font-semibold hover:bg-blue-50 transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
-            Find a Doctor
-          </a>
-          <a
-            href="#book-appointment"
+            Find Care
+          </Link>
+          <Link
+            to="/user/appointments"
             className="bg-blue-500 hover:bg-blue-400 text-white px-8 py-4 rounded-full font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg"
           >
             Book Appointment
-          </a>
+          </Link>
         </div>
 
         <div className="flex items-center justify-center gap-2 text-blue-200">

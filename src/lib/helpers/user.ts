@@ -106,6 +106,7 @@ export const updateUser = async (uid: string, updatedValues: Partial<any>) => {
 export const addAppointmentToCurrentUser = async (
   message: string,
   name: string,
+  profilePic: string,
   date: string,
   time: string,
   type: string,
@@ -119,6 +120,7 @@ export const addAppointmentToCurrentUser = async (
 
   const appointment = {
     name,
+    profilePic,
     userId: user.uid,
     email: user.email,
     message,

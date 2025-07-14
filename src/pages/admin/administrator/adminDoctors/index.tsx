@@ -37,6 +37,14 @@ const initialDoctors: Doctor[] = [
     phone: "08087654321",
     profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
   },
+  {
+    id: "3",
+    name: "Dr. Amaka",
+    email: "amaka@hospital.com",
+    specialty: "General",
+    phone: "08087244321",
+    profilePic: "https://randomuser.me/api/portraits/women/44.jpg",
+  },
 ];
 
 const dummyAppointments: Appointment[] = [
