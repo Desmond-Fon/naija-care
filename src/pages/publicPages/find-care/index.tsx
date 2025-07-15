@@ -3,63 +3,10 @@ import { useState, useEffect } from "react";
 import { Navbar } from "../../../components/Nav";
 import { translations } from "../../../lib/translations";
 import { MapPin, Hospital, Search, LocateFixed } from "lucide-react";
+import { hospitals } from "../../../lib/HospitalData";
 
 // Define supported language codes explicitly for type safety
 export type Lang = "en" | "pidgin" | "igbo" | "yoruba" | "hausa";
-
-// Example hospital/clinic data
-const hospitals = [
-  {
-    name: "Lagos University Teaching Hospital",
-    address: "Ishaga Rd, Idi-Araba, Lagos",
-    city: "Lagos",
-    state: "Lagos",
-    phone: "+234 800 123 4567",
-    type: "Teaching Hospital",
-    lat: 6.5176,
-    lng: 3.3676
-  },
-  {
-    name: "Abuja National Hospital",
-    address: "Plot 132 Central Business District, Abuja",
-    city: "Abuja",
-    state: "FCT",
-    phone: "+234 800 234 5678",
-    type: "General Hospital",
-    lat: 9.0122,
-    lng: 7.4898
-  },
-  {
-    name: "University College Hospital Ibadan",
-    address: "Queen Elizabeth Rd, Ibadan",
-    city: "Ibadan",
-    state: "Oyo",
-    phone: "+234 800 345 6789",
-    type: "Teaching Hospital",
-    lat: 7.4018,
-    lng: 3.9173
-  },
-  {
-    name: "Enugu State University Teaching Hospital",
-    address: "Parklane, GRA, Enugu",
-    city: "Enugu",
-    state: "Enugu",
-    phone: "+234 800 456 7890",
-    type: "Teaching Hospital",
-    lat: 6.5244,
-    lng: 7.5086
-  },
-  {
-    name: "Aminu Kano Teaching Hospital",
-    address: "Zaria Rd, Kano",
-    city: "Kano",
-    state: "Kano",
-    phone: "+234 800 567 8901",
-    type: "Teaching Hospital",
-    lat: 12.0022,
-    lng: 8.5919
-  }
-];
 
 /**
  * Calculates the distance between two latitude/longitude points using the Haversine formula.

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Navbar } from "../../../components/Nav";
 import { translations } from "../../../lib/translations";
 import { BookOpen, Video, DownloadCloud } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Define supported language codes explicitly for type safety
 export type Lang = "en" | "pidgin" | "igbo" | "yoruba" | "hausa";
@@ -14,7 +15,7 @@ const resources = [
     description: "Learn the basics of malaria prevention and treatment.",
     lang: "en",
     link: "#",
-    offline: true
+    offline: true,
   },
   {
     type: "video",
@@ -22,7 +23,7 @@ const resources = [
     description: "Watch tips on healthy eating habits in Pidgin.",
     lang: "pidgin",
     link: "#",
-    offline: false
+    offline: false,
   },
   {
     type: "article",
@@ -30,7 +31,7 @@ const resources = [
     description: "Ihe ị ga-eme iji gbochie iba na Igbo.",
     lang: "igbo",
     link: "#",
-    offline: true
+    offline: true,
   },
   {
     type: "video",
@@ -38,7 +39,7 @@ const resources = [
     description: "Fídíò lori ìlera ọmọde ní èdè Yorùbá.",
     lang: "yoruba",
     link: "#",
-    offline: false
+    offline: false,
   },
   {
     type: "article",
@@ -46,8 +47,8 @@ const resources = [
     description: "Labari akan lafiyar yara a Hausa.",
     lang: "hausa",
     link: "#",
-    offline: true
-  }
+    offline: true,
+  },
 ];
 
 /**
@@ -89,6 +90,12 @@ const Education = () => {
           <p className="text-lg text-gray-600">
             Simple health articles and videos in your language. Access some
             resources offline!
+          </p>
+          <p className="text-lg text-gray-600">
+            For more information, visit the official{" "}
+            <Link to="https://www.nhia.gov.ng/" className="font-semibold">
+              NHIS website
+            </Link>
           </p>
         </section>
 
