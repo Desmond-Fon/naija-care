@@ -9,16 +9,18 @@ export type Lang = "en" | "pidgin" | "igbo" | "yoruba" | "hausa";
 const faqs = [
   {
     question: "How do I contact support?",
-    answer: "You can reach us via live chat or by submitting the feedback form below."
+    answer:
+      "You can reach us via live chat or by submitting the feedback form below.",
   },
   {
     question: "Is live chat available 24/7?",
-    answer: "Yes, our support team is available round the clock to assist you."
+    answer: "Yes, our support team is available round the clock to assist you.",
   },
   {
     question: "How do I give feedback?",
-    answer: "Fill out the feedback form below and our team will review your suggestions."
-  }
+    answer:
+      "Fill out the feedback form below and our team will review your suggestions.",
+  },
 ];
 
 const Contact = () => {

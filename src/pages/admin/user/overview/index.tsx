@@ -2,26 +2,6 @@
 // import { useState } from "react";
 import { useUser } from "../../../../context/useUser";
 
-// Dummy data for demonstration
-// const dummyUser = {
-//   name: "Jane Doe",
-//   email: "jane.doe@email.com",
-//   wallet: 120.5,
-//   appointments: [
-//     { id: 1, type: "virtual", date: "2024-06-01", status: "completed" },
-//     { id: 2, type: "in-person", date: "2024-06-10", status: "confirmed" },
-//     { id: 3, type: "virtual", date: "2024-06-15", status: "pending" },
-//   ],
-//   transactions: [
-//     { id: 1, type: "add", amount: 100, date: "2024-05-30" },
-//     { id: 2, type: "pay", amount: -50, date: "2024-06-01" },
-//   ],
-// };
-
-/**
- * Overview page component that summarizes user activities.
- * Displays user info, wallet balance, appointment stats, and recent actions.
- */
 const Overview = () => {
   // State for user data (replace with real data fetching in production)
   const { user } = useUser();

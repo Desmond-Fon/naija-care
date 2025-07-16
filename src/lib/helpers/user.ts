@@ -410,8 +410,6 @@ export const removeFundsFromWallet = async (
 
 // STATS FOR ADMIN
 export const getAdminStatsAll = async () => {
-  // Import necessary Firestore functions
-  // Collections
   const usersCol = collection(database, "users");
 
   // Fetch all users

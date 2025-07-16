@@ -242,14 +242,6 @@ const AdminAppointments = () => {
                 <label className="block text-sm font-medium mb-1">
                   Doctor Assigned
                 </label>
-                {/* <input
-                  type="text"
-                  className="w-full border rounded px-2 py-1"
-                  value={form.doctor}
-                  onChange={(e) => setForm({ ...form, doctor: e.target.value })}
-                  placeholder="Enter doctor's name"
-                  required
-                /> */}
                 <select
                   name=""
                   id=""

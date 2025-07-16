@@ -51,10 +51,7 @@ const resources = [
   },
 ];
 
-/**
- * Education page component displaying health articles and videos in local languages.
- * Uses the shared design system for layout and card styles.
- */
+
 const Education = () => {
   // State for selected language
   const [lang, setLang] = useState<Lang>("en");

@@ -8,9 +8,6 @@ import { hospitals } from "../../../lib/HospitalData";
 // Define supported language codes explicitly for type safety
 export type Lang = "en" | "pidgin" | "igbo" | "yoruba" | "hausa";
 
-/**
- * Calculates the distance between two latitude/longitude points using the Haversine formula.
- */
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
   const toRad = (v: number) => (v * Math.PI) / 180;
   const R = 6371; // Radius of Earth in km
@@ -18,16 +15,14 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
   const dLng = toRad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
 
-/**
- * FindCare page component displaying a list of hospitals/clinics with filter by city/state and geolocation support.
- * Uses the shared design system for layout and card styles.
- */
 const FindCare = () => {
   // State for selected language
   const [lang, setLang] = useState<Lang>("en");
@@ -35,7 +30,9 @@ const FindCare = () => {
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState(hospitals);
   // State for user location
-  const [userLoc, setUserLoc] = useState<{lat: number; lng: number} | null>(null);
+  const [userLoc, setUserLoc] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
   // State for sorted hospitals by distance
   const [sorted, setSorted] = useState<typeof hospitals>(hospitals);
   // State for geolocation error
@@ -59,10 +56,11 @@ const FindCare = () => {
       setFiltered(hospitals);
     } else {
       setFiltered(
-        hospitals.filter(h =>
-          h.name.toLowerCase().includes(q) ||
-          h.city.toLowerCase().includes(q) ||
-          h.state.toLowerCase().includes(q)
+        hospitals.filter(
+          (h) =>
+            h.name.toLowerCase().includes(q) ||
+            h.city.toLowerCase().includes(q) ||
+            h.state.toLowerCase().includes(q)
         )
       );
     }
@@ -72,9 +70,10 @@ const FindCare = () => {
   useEffect(() => {
     if (userLoc) {
       setSorted(
-        [...filtered].sort((a, b) =>
-          getDistance(userLoc.lat, userLoc.lng, a.lat, a.lng) -
-          getDistance(userLoc.lat, userLoc.lng, b.lat, b.lng)
+        [...filtered].sort(
+          (a, b) =>
+            getDistance(userLoc.lat, userLoc.lng, a.lat, a.lng) -
+            getDistance(userLoc.lat, userLoc.lng, b.lat, b.lng)
         )
       );
     } else {
@@ -90,10 +89,10 @@ const FindCare = () => {
     }
     setGeoError(null);
     navigator.geolocation.getCurrentPosition(
-      pos => {
+      (pos) => {
         setUserLoc({ lat: pos.coords.latitude, lng: pos.coords.longitude });
       },
-      _err => {
+      (_err) => {
         setGeoError("Unable to retrieve your location.");
       }
     );

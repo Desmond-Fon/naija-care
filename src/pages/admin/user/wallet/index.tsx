@@ -5,11 +5,6 @@ import { useUser } from "../../../../context/useUser";
 import { addFundsToWallet } from "../../../../lib/helpers/user";
 import { useAppToast } from "../../../../lib/useAppToast";
 
-/**
- * User wallet page for managing funds.
- * Users can add funds via simulated card or blockchain payment and view transaction history.
- * Responsive for mobile and desktop.
- */
 const Wallet = () => {
   // State for wallet balance and transactions
   const { user, setRefetch, refetch } = useUser();

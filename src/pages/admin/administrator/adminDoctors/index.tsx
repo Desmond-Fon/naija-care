@@ -95,7 +95,11 @@ const AdminDoctors = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setForm((f) => ({ ...f, preview: reader.result as string, profilePic: reader.result as string }));
+        setForm((f) => ({
+          ...f,
+          preview: reader.result as string,
+          profilePic: reader.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -119,7 +123,14 @@ const AdminDoctors = () => {
         profilePic: form.profilePic,
       },
     ]);
-    setForm({ name: "", email: "", specialty: "", phone: "", profilePic: "", preview: "" });
+    setForm({
+      name: "",
+      email: "",
+      specialty: "",
+      phone: "",
+      profilePic: "",
+      preview: "",
+    });
     setShowAddModal(false);
     setMessage("");
   }
@@ -171,7 +182,11 @@ const AdminDoctors = () => {
               <tr key={d.id} className="border-b">
                 <td className="p-2">
                   {d.profilePic ? (
-                    <img src={d.profilePic} alt={d.name} className="w-10 h-10 rounded-full object-cover" />
+                    <img
+                      src={d.profilePic}
+                      alt={d.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
                   ) : (
                     <span className="inline-block w-10 h-10 rounded-full bg-gray-200" />
                   )}
@@ -192,7 +207,9 @@ const AdminDoctors = () => {
             ))}
             {filteredDoctors.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-center text-gray-400 py-4">No doctors found.</td>
+                <td colSpan={6} className="text-center text-gray-400 py-4">
+                  No doctors found.
+                </td>
               </tr>
             )}
           </tbody>
@@ -212,7 +229,11 @@ const AdminDoctors = () => {
             <form onSubmit={handleAddDoctor} className="space-y-4">
               <div className="flex flex-col items-center gap-2">
                 {form.preview ? (
-                  <img src={form.preview} alt="Preview" className="w-16 h-16 rounded-full object-cover" />
+                  <img
+                    src={form.preview}
+                    alt="Preview"
+                    className="w-16 h-16 rounded-full object-cover"
+                  />
                 ) : (
                   <span className="inline-block w-16 h-16 rounded-full bg-gray-200" />
                 )}
@@ -232,12 +253,14 @@ const AdminDoctors = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Full Name</label>
+                <label className="block text-sm font-medium mb-1">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   className="w-full border rounded px-2 py-1"
                   value={form.name}
-                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                 />
               </div>
@@ -247,17 +270,21 @@ const AdminDoctors = () => {
                   type="email"
                   className="w-full border rounded px-2 py-1"
                   value={form.email}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Specialty</label>
+                <label className="block text-sm font-medium mb-1">
+                  Specialty
+                </label>
                 <input
                   type="text"
                   className="w-full border rounded px-2 py-1"
                   value={form.specialty}
-                  onChange={e => setForm({ ...form, specialty: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, specialty: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -267,7 +294,7 @@ const AdminDoctors = () => {
                   type="tel"
                   className="w-full border rounded px-2 py-1"
                   value={form.phone}
-                  onChange={e => setForm({ ...form, phone: e.target.value })}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   required
                 />
               </div>
@@ -292,7 +319,9 @@ const AdminDoctors = () => {
             >
               &times;
             </button>
-            <h3 className="text-lg font-bold mb-4">Appointments for {selectedDoctor.name}</h3>
+            <h3 className="text-lg font-bold mb-4">
+              Appointments for {selectedDoctor.name}
+            </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
@@ -316,7 +345,12 @@ const AdminDoctors = () => {
                   ))}
                   {dummyAppointments.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="text-center text-gray-400 py-4">No appointments found.</td>
+                      <td
+                        colSpan={5}
+                        className="text-center text-gray-400 py-4"
+                      >
+                        No appointments found.
+                      </td>
                     </tr>
                   )}
                 </tbody>

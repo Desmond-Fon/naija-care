@@ -4,10 +4,6 @@ import { useUser } from "../../../../context/useUser";
 import { useAppToast } from "../../../../lib/useAppToast";
 import { updateUser } from "../../../../lib/helpers/user";
 
-/**
- * Profile page component for viewing and editing user details, including profile picture.
- * Optimized to always sync state with user context and update UI on edits or refresh.
- */
 const Profile = () => {
   const { user, setRefetch, refetch } = useUser();
   const toast = useAppToast();
@@ -171,7 +167,9 @@ const Profile = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">NHIS Number</label>
+              <label className="block text-sm font-medium mb-1">
+                NHIS Number
+              </label>
               <input
                 type="text"
                 name="nhis_number"
@@ -238,7 +236,9 @@ const Profile = () => {
               <span className="font-semibold">{form.name}</span>
             </div>
             <div className="mb-3">
-              <span className="block text-gray-600 text-sm mb-1">NHIS Number</span>
+              <span className="block text-gray-600 text-sm mb-1">
+                NHIS Number
+              </span>
               <span className="font-semibold">{form.nhis_number}</span>
             </div>
             <div className="mb-3">

@@ -11,10 +11,6 @@ import { auth } from "../../../../lib/firebase";
 import { useAppToast } from "../../../../lib/useAppToast";
 import { useUser } from "../../../../context/useUser";
 
-/**
- * AdminUsers page: Lists users under this admin and provides a modal to add a user.
- * The add user form includes full name, email, profile picture, NHIS number, phone, and address.
- */
 const AdminUsers = () => {
   const toast = useAppToast();
   const { user } = useUser();
@@ -44,20 +40,6 @@ const AdminUsers = () => {
   // State for viewing patient details
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-
-  // Dummy patient history and appointments (replace with real data later)
-  //   const dummyHistory = [
-  //     { date: "2024-03-01", description: "General Checkup", notes: "All good." },
-  //     {
-  //       date: "2024-02-15",
-  //       description: "Malaria Treatment",
-  //       notes: "Prescribed medication.",
-  //     },
-  //   ];
-  //   const dummyAppointments = [
-  //     { date: "2024-04-10", type: "Virtual", status: "Completed" },
-  //     { date: "2024-05-01", type: "In-person", status: "Upcoming" },
-  //   ];
 
   // Filter users by NHIS number
   const filteredUsers = users.filter((user: any) =>
@@ -94,19 +76,6 @@ const AdminUsers = () => {
       reader.readAsDataURL(file);
     }
   }
-
-  // useEffect(() => {
-  //   const fetchBlogs = async () => {
-  //     try {
-  //       let allUsers = await getUsers();
-  //       allUsers = allUsers.filter((user: any) => user.role === "user");
-  //       setUsers(allUsers);
-  //     } catch (error) {
-  //       console.error("Error fetching blogs:", error);
-  //     }
-  //   };
-  //   fetchBlogs();
-  // }, [refetch]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
