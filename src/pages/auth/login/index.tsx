@@ -73,7 +73,7 @@ const Login = () => {
       }
     } catch (error: any) {
       setLoading(false);
-      console.log(error);
+      console.error(error);
       toast({
         description: error.message || "Access denied. You are not an admin.",
         status: "error",

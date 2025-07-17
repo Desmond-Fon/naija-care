@@ -144,7 +144,6 @@ const AdminAppointments = () => {
     });
   }
 
-  console.log(appointments);
 
   return (
     <div className="p-4 max-w-6xl mx-auto w-full">

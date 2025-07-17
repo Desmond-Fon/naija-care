@@ -6,7 +6,6 @@ const Overview = () => {
   // State for user data (replace with real data fetching in production)
   const { user } = useUser();
 
-  console.log(user);
 
   // Calculate appointment stats
   const totalAppointments =
