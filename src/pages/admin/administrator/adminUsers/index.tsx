@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   // EmailAuthProvider,
   onAuthStateChanged,
+  sendEmailVerification,
   signInWithEmailAndPassword,
   // signOut,
 } from "firebase/auth";
@@ -204,6 +205,8 @@ const AdminUsers = () => {
       );
 
       const newUser = userCredential.user;
+
+      await sendEmailVerification(newUser);
 
       // Upload profile image
       const imageUrl = await uploadToCloudinary(profilePic as File);
