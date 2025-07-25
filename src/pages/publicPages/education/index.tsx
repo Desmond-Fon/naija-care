@@ -88,9 +88,12 @@ const Education = () => {
             Simple health articles and videos in your language. Access some
             resources offline!
           </p>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg ">
             For more information, visit the official{" "}
-            <Link to="https://www.nhia.gov.ng/" className="font-semibold">
+            <Link
+              to="https://www.nhia.gov.ng/"
+              className="font-semibold text-blue-600 underline"
+            >
               NHIS website
             </Link>
           </p>

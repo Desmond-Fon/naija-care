@@ -49,6 +49,7 @@ const Appointments = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   // State for error/success messages
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Handle opening booking modal
   function handleBook() {
@@ -69,6 +70,7 @@ const Appointments = () => {
       return;
     }
     setMessage("");
+    setLoading(false)
     try {
       await addAppointmentToCurrentUser(
         form.message, // message (not collected in form, so pass empty)
@@ -98,6 +100,7 @@ const Appointments = () => {
         description:
           "Appointment booked successfully, please check for confirmation.",
       });
+      setLoading(false)
     } catch (error: any) {
       toast({
         status: "error",
@@ -106,6 +109,7 @@ const Appointments = () => {
           error?.message ||
           "Failed to book appointment. Please try again.",
       });
+            setLoading(false);
       setMessage("Failed to book appointment. Please try again.");
     }
   }
@@ -183,22 +187,22 @@ const Appointments = () => {
   }
 
   // Simulate admin confirming appointment
-  function simulateAdminConfirm(id: string) {
-    setAppointments(
-      appointments.map((a) =>
-        a.id === id
-          ? {
-              ...a,
-              status: "confirmed",
-              googleMeetLink:
-                a.type === "virtual"
-                  ? "https://meet.google.com/example-link"
-                  : undefined,
-            }
-          : a
-      )
-    );
-  }
+  // function simulateAdminConfirm(id: string) {
+  //   setAppointments(
+  //     appointments.map((a) =>
+  //       a.id === id
+  //         ? {
+  //             ...a,
+  //             status: "confirmed",
+  //             googleMeetLink:
+  //               a.type === "virtual"
+  //                 ? "https://meet.google.com/example-link"
+  //                 : undefined,
+  //           }
+  //         : a
+  //     )
+  //   );
+  // }
 
   // Handle payment
   function handlePayment(id: string) {
@@ -307,14 +311,14 @@ const Appointments = () => {
                     {a.paymentStatus}
                   </td>
                   <td className="p-2 text-center flex flex-col gap-1">
-                    {a.status === "pending" && (
+                    {/* {a.status === "pending" && (
                       <button
                         className="text-green-600 text-xs underline"
                         onClick={() => simulateAdminConfirm(a.id)}
                       >
                         Simulate Admin Confirm
                       </button>
-                    )}
+                    )} */}
                     {a.status === "confirmed" &&
                       a.paymentStatus === "unpaid" && (
                         <button
@@ -425,12 +429,17 @@ const Appointments = () => {
                 >
                   Cancel
                 </button>
-                <button
+                {loading ? <button
+                  // type="submit"
+                  className="px-4 py-2 rounded bg-blue-600 text-white"
+                >
+                  Loading...
+                </button> :<button
                   type="submit"
                   className="px-4 py-2 rounded bg-blue-600 text-white"
                 >
                   {selected ? "Update" : "Book"}
-                </button>
+                </button>}
               </div>
             </form>
           </div>

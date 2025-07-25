@@ -30,7 +30,7 @@ const navItems = [
 const UserLayout = () => {
   const toast = useAppToast();
   const navigate = useNavigate();
-  const {user} = useUser()
+  const { user } = useUser();
   // State for active nav item
   const [active, setActive] = useState("Overview");
   // State for profile dropdown
@@ -62,7 +62,6 @@ const UserLayout = () => {
 
     return () => clearTimeout(timeout);
   }, [user, toast, navigate]);
-  
 
   return (
     <div className="h-screen w-screen flex bg-gray-50 overflow-hidden">

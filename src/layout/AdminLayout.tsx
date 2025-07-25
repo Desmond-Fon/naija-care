@@ -9,7 +9,7 @@ import {
   X,
   Users,
   Cog,
-  Search
+  Search,
 } from "lucide-react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
@@ -31,7 +31,7 @@ const navItems = [
 
 const AdminLayout = () => {
   const toast = useAppToast();
-  const {user} = useUser()
+  const { user } = useUser();
   const navigate = useNavigate();
   // State for active nav item
   const [active, setActive] = useState("Overview");
@@ -53,7 +53,7 @@ const AdminLayout = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (!user || user.role !== 'admin') {
+      if (!user || user.role !== "admin") {
         toast({
           status: "error",
           description: "Please login to access your dashboard",

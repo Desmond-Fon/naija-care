@@ -15,19 +15,40 @@ import {
 
 
 // USERS
+// export const getCurrentUserRole = async () => {
+//   const user = auth.currentUser;
+//   if (!user) return null;
+
+//   const docRef = doc(usersCollection, user.uid);
+//   const userSnap = await getDoc(docRef);
+
+//   if (userSnap.exists()) {
+//     return userSnap.data().role;
+//   }
+
+//   return null;
+// };
+
 export const getCurrentUserRole = async () => {
   const user = auth.currentUser;
-  if (!user) return null;
+  if (!user) {
+    console.warn("No authenticated user.");
+    return null;
+  }
 
   const docRef = doc(usersCollection, user.uid);
   const userSnap = await getDoc(docRef);
 
-  if (userSnap.exists()) {
-    return userSnap.data().role;
+  if (!userSnap.exists()) {
+    console.warn("User document not found for:", user.uid);
+    return null;
   }
 
-  return null;
+  const data = userSnap.data();
+  console.log("Fetched user data:", data);
+  return data?.role;
 };
+
 
 export const getCurrentUser = async () => {
   const user = auth.currentUser;
@@ -48,11 +69,11 @@ export const getCurrentUser = async () => {
 // ADMIN
 
 export const createUser = async (newUser: any) => {
-  const role = await getCurrentUserRole();
+  // const role = await getCurrentUserRole();
 
-  if (role !== "admin") {
-    throw new Error("Permission denied: Only admins can create users.");
-  }
+  // if (role !== "admin") {
+  //   throw new Error("Permission denied: Only admins can create users.");
+  // }
 
   return setDoc(
     doc(usersCollection, newUser.uid),

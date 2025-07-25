@@ -21,6 +21,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 import { UserProvider } from "./context/useUser";
 import AdminSearch from "./pages/admin/administrator/adminSearch";
+import TermsPage from "./pages/publicPages/terms-and-condition";
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/find-care" element={<FindCare />} />
               <Route path="/health-education" element={<Education />} />
+              <Route path="/terms-and-condition" element={<TermsPage />} />
             </Route>
             <Route path="/auth" element={<AuthLayout />}>
               <Route path="login" element={<Login />} />

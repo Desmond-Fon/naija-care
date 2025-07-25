@@ -180,6 +180,19 @@ const Profile = () => {
               />
             </div>
             <div>
+              <label className="block text-sm font-medium mb-1">
+                NIN
+              </label>
+              <input
+                type="text"
+                name="nin"
+                className="w-full border rounded px-2 py-1"
+                value={form.nin || ""}
+                readOnly
+                required
+              />
+            </div>
+            <div>
               <label className="block text-sm font-medium mb-1">Email</label>
               <input
                 type="email"
@@ -240,6 +253,10 @@ const Profile = () => {
                 NHIS Number
               </span>
               <span className="font-semibold">{form.nhis_number}</span>
+            </div>
+            <div className="mb-3">
+              <span className="block text-gray-600 text-sm mb-1">NIN</span>
+              <span className="font-semibold">{form.nin || "Nill"}</span>
             </div>
             <div className="mb-3">
               <span className="block text-gray-600 text-sm mb-1">Email</span>

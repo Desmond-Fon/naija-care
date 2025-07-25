@@ -44,23 +44,23 @@ export const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Find Doctors
+                <a href="/find-care" className="hover:text-white transition-colors">
+                  Find Care
+                </a>
+              </li>
+              <li>
+                <a href="/health-education" className="hover:text-white transition-colors">
+                  Education
+                </a>
+              </li>
+              <li>
+                <a href="/contact" className="hover:text-white transition-colors">
+                  Support
                 </a>
               </li>
               <li>
                 <a href="#" className="hover:text-white transition-colors">
-                  Book Appointment
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Telemedicine
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Health Wallet
+                  Health
                 </a>
               </li>
               <li>
@@ -105,7 +105,7 @@ export const Footer = () => {
                 Privacy Policy
               </a>
               <a
-                href="#"
+                href="/terms-and-condition"
                 className="text-gray-400 hover:text-white text-sm transition-colors"
               >
                 Terms of Service

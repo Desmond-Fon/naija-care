@@ -144,7 +144,6 @@ const AdminAppointments = () => {
     });
   }
 
-
   return (
     <div className="p-4 max-w-6xl mx-auto w-full">
       <h1 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
@@ -175,13 +174,13 @@ const AdminAppointments = () => {
               {appointments.map((a) => (
                 <tr key={a.id} className="border-b">
                   <td className="p-2 flex justify-start items-center gap-1">
-                    <span>
+                    <div className="w-10 h-10">
                       <img
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-full h-full rounded-full object-cover"
                         src={a.profilePic}
                         alt=""
                       />
-                    </span>
+                    </div>
                     {a.name}
                   </td>
                   <td className="p-2">

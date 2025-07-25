@@ -38,19 +38,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     return unsubscribe;
   }, [refetch]);
 
-
-const handleLogout = async () => {
-  try {
-    await signOut(auth);
-    // Optional: Redirect to login or home page
-    navigate("/");
-  } catch (error) {
-    console.error("Error signing out:", error);
-  }
-};
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      // Optional: Redirect to login or home page
+      navigate("/");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
-    <UserContext.Provider value={{ user, setUser, handleLogout, setRefetch, refetch }}>
+    <UserContext.Provider
+      value={{ user, setUser, handleLogout, setRefetch, refetch }}
+    >
       {children}
     </UserContext.Provider>
   );

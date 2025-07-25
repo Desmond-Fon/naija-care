@@ -2,18 +2,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   createUserWithEmailAndPassword,
+  // EmailAuthProvider,
   onAuthStateChanged,
-  signOut,
+  signInWithEmailAndPassword,
+  // signOut,
 } from "firebase/auth";
 import React, { useState, useRef, useEffect } from "react";
 import { createUser, getUsersByAdmin } from "../../../../lib/helpers/user";
 import { auth } from "../../../../lib/firebase";
 import { useAppToast } from "../../../../lib/useAppToast";
-import { useUser } from "../../../../context/useUser";
+// import { useUser } from "../../../../context/useUser";
 
 const AdminUsers = () => {
   const toast = useAppToast();
-  const { user } = useUser();
+  // const { user } = useUser();
   // State for users
   const [users, setUsers] = useState<any>([]);
   // State for modal visibility
@@ -28,6 +30,7 @@ const AdminUsers = () => {
     address: "",
     profilePic: null as File | null,
     password: "",
+    nin: "",
   });
   // State for profile picture preview
   const [preview, setPreview] = useState("");
@@ -40,6 +43,8 @@ const AdminUsers = () => {
   // State for viewing patient details
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+  const [loading, setLoading] = useState(false);
 
   // Filter users by NHIS number
   const filteredUsers = users.filter((user: any) =>
@@ -107,6 +112,7 @@ const AdminUsers = () => {
       address: "",
       profilePic: null as File | null,
       password: "",
+      nin: "",
     });
     setPreview("");
     setMessage("");
@@ -123,6 +129,7 @@ const AdminUsers = () => {
       address: "",
       profilePic: null as File | null,
       password: "",
+      nin: "",
     });
     setPreview("");
     setMessage("");
@@ -167,10 +174,10 @@ const AdminUsers = () => {
 
   const createUserAsAdmin = async (e: any) => {
     e.preventDefault();
-    const { email, password, name, phone, address, profilePic } = form;
+
+    const { email, password, name, phone, address, profilePic, nin } = form;
 
     if (!form.name || !form.email || !form.password) {
-      //   setMessage("Full name, email, and NHIS number are required.");
       toast({
         status: "error",
         description: "All fields are required",
@@ -178,14 +185,27 @@ const AdminUsers = () => {
       return;
     }
 
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
+    const adminEmail = auth.currentUser?.email;
+    const adminPassword = prompt(
+      "Please enter your password to re-authenticate:"
     );
-    const newUser = userCredential.user;
 
+    // const credential = EmailAuthProvider.credential(adminEmail!, adminPassword!);
+    setLoading(true);
     try {
+      // Save admin user to come back to later
+      const adminUser = auth.currentUser;
+
+      // Create new user (this signs them in and kicks admin out)
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const newUser = userCredential.user;
+
+      // Upload profile image
       const imageUrl = await uploadToCloudinary(profilePic as File);
       const nhisId = generateNHISId();
 
@@ -199,18 +219,16 @@ const AdminUsers = () => {
         phone,
         address,
         profilePic: imageUrl,
-        hospitalId: user.uid,
+        hospitalId: adminUser?.uid,
         wallet: 0,
+        nin,
       });
 
-      // Optional: Sign out the new user immediately
-      await signOut(auth);
+      // ✅ Re-sign in admin
+      await signInWithEmailAndPassword(auth, adminEmail!, adminPassword!);
 
-      // let allUsers = await getUsers();
-      // allUsers = allUsers.filter((user: any) => user.role === "user");
-      // setUsers(allUsers);
-
-      let allUsers = await getUsersByAdmin(user.uid);
+      // Get all users again
+      let allUsers = await getUsersByAdmin(adminUser ? adminUser?.uid : "");
       allUsers = allUsers.filter((user: any) => user.role === "user");
       setUsers(allUsers);
       setRefetch(!refetch);
@@ -219,8 +237,10 @@ const AdminUsers = () => {
         status: "success",
         description: "User added successfully",
       });
+      setLoading(false);
     } catch (error: any) {
       console.error("Error creating user:", error);
+      setLoading(false);
       toast({
         status: "error",
         description: error?.message || "Error creating user",
@@ -362,6 +382,17 @@ const AdminUsers = () => {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium mb-1">NIN</label>
+                <input
+                  type="text"
+                  name="nin"
+                  className="w-full border rounded px-2 py-1"
+                  value={form.nin}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
@@ -421,7 +452,7 @@ const AdminUsers = () => {
                   type="submit"
                   className="px-4 py-2 rounded bg-blue-600 text-white"
                 >
-                  Add User
+                  {loading ? "Loading..." : "Add User"}
                 </button>
               </div>
             </form>

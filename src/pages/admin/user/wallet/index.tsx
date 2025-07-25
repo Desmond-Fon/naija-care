@@ -4,6 +4,9 @@ import { CreditCard, Bitcoin, PlusCircle } from "lucide-react";
 import { useUser } from "../../../../context/useUser";
 import { addFundsToWallet } from "../../../../lib/helpers/user";
 import { useAppToast } from "../../../../lib/useAppToast";
+import opay from '../../../../assets/opay.jpeg'
+import moniepoint from '../../../../assets/moniepoint.png'
+import flutterwave from '../../../../assets/flutterwave.jpeg'
 
 const Wallet = () => {
   // State for wallet balance and transactions
@@ -61,6 +64,25 @@ const Wallet = () => {
     }
   };
 
+  // const dollarToNairaRate = 1500; // Example conversion
+  // const dollarAmount = 10; // Simulated crypto amount
+
+  const dollarToNairaRate = 1530; // Example exchange rate
+  const btcRate = 68000000; // 1 BTC ≈ ₦68,000,000
+  const usdtRate = 1500; // 1 USDT ≈ ₦1,500
+
+  const nairaAmount = parseFloat(amount || "0");
+  const dollarAmount = nairaAmount / dollarToNairaRate;
+
+  const btcAmount = nairaAmount / btcRate;
+  const usdtAmount = nairaAmount / usdtRate;
+
+  useEffect(() => {
+    if (method === "blockchain") {
+      setAmount((dollarAmount * dollarToNairaRate).toString());
+    }
+  }, [dollarAmount, method]);
+
   return (
     <div className="max-w-6xl mx-auto w-full p-4 md:p-8">
       <h1 className="text-2xl md:text-3xl font-bold text-blue-700 mb-6">
@@ -90,8 +112,11 @@ const Wallet = () => {
             >
               &times;
             </button>
+
             <h2 className="text-xl font-bold mb-4">Add Funds</h2>
+
             <form onSubmit={handleAddFunds} className="space-y-4">
+              {/* Amount Input */}
               <div>
                 <label
                   className="block text-gray-700 font-medium mb-1"
@@ -109,48 +134,108 @@ const Wallet = () => {
                   required
                 />
               </div>
+
+              {/* Payment Methods */}
               <div>
                 <label className="block text-gray-700 font-medium mb-1">
                   Payment Method
                 </label>
-                <div className="flex gap-4">
-                  <label
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${
-                      method === "card"
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="method"
-                      value="card"
-                      checked={method === "card"}
-                      onChange={() => setMethod("card")}
-                      className="accent-blue-600"
-                    />
-                    <CreditCard className="w-5 h-5" /> Card
-                  </label>
-                  <label
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${
-                      method === "blockchain"
-                        ? "border-blue-600 bg-blue-50"
-                        : "border-gray-300"
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="method"
-                      value="blockchain"
-                      checked={method === "blockchain"}
-                      onChange={() => setMethod("blockchain")}
-                      className="accent-blue-600"
-                    />
-                    <Bitcoin className="w-5 h-5" /> Blockchain
-                  </label>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    {
+                      id: "card",
+                      label: "Card",
+                      icon: <CreditCard className="w-5 h-5" />,
+                    },
+                    {
+                      id: "blockchain",
+                      label: "Blockchain",
+                      icon: <Bitcoin className="w-5 h-5" />,
+                    },
+                    {
+                      id: "opay",
+                      label: "Opay",
+                      icon: <img src={opay} className="w-5 h-5" alt="opay" />,
+                    },
+                    {
+                      id: "moniepoint",
+                      label: "Moniepoint",
+                      icon: (
+                        <img
+                          src={moniepoint}
+                          className="w-5 h-5"
+                          alt="moniepoint"
+                        />
+                      ),
+                    },
+                    {
+                      id: "flutterwave",
+                      label: "Flutterwave",
+                      icon: (
+                        <img
+                          src={flutterwave}
+                          className="w-5 h-5"
+                          alt="flutterwave"
+                        />
+                      ),
+                    },
+                  ].map((opt) => (
+                    <label
+                      key={opt.id}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer ${
+                        method === opt.id
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="method"
+                        value={opt.id}
+                        checked={method === opt.id}
+                        onChange={() => setMethod(opt.id)}
+                        className="accent-blue-600"
+                      />
+                      {opt.icon} {opt.label}
+                    </label>
+                  ))}
                 </div>
               </div>
+
+              {/* Blockchain Simulated Payment Display */}
+              {/* {method === "blockchain" && (
+                <div className="bg-gray-100 p-4 rounded-md text-sm text-gray-700 space-y-2">
+                  <p>
+                    You're paying <strong>${dollarAmount}</strong> (~₦
+                    {dollarAmount * dollarToNairaRate}) via crypto.
+                  </p>
+                  <p>
+                    Crypto amount: <strong>0.00022 BTC</strong> or{" "}
+                    <strong>10 USDT</strong>
+                  </p>
+                  <p className="text-green-600 font-medium">
+                    Exchange Rate: $1 ≈ ₦{dollarToNairaRate}
+                  </p>
+                </div>
+              )} */}
+              {method === "blockchain" && (
+                <div className="bg-gray-100 p-4 rounded-md text-sm text-gray-700 space-y-2">
+                  <p>
+                    You're paying <strong>${dollarAmount.toFixed(2)}</strong>{" "}
+                    (~₦{nairaAmount.toLocaleString()}) via crypto.
+                  </p>
+                  <p>
+                    Crypto amount: <strong>{btcAmount.toFixed(6)} BTC</strong>{" "}
+                    or <strong>{usdtAmount.toFixed(2)} USDT</strong>
+                  </p>
+                  <p className="text-green-600 font-medium">
+                    Exchange Rate: $1 ≈ ₦{dollarToNairaRate}
+                  </p>
+                </div>
+              )}
+
               {error && <div className="text-red-600 text-sm">{error}</div>}
+
               <button
                 type="submit"
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-full font-semibold transition-all duration-200 shadow-lg"
@@ -158,6 +243,7 @@ const Wallet = () => {
               >
                 {loading ? "Processing..." : `Add ₦${amount || ""}`}
               </button>
+
               {success && (
                 <div className="text-green-600 text-sm mt-2">{success}</div>
               )}
