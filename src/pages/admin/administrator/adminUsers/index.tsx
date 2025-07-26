@@ -186,6 +186,14 @@ const AdminUsers = () => {
       return;
     }
 
+    if (!profilePic) {
+      toast({
+        status: "error",
+        description: "Please upload a profile image",
+      });
+      return;
+    }
+
     const adminEmail = auth.currentUser?.email;
     const adminPassword = prompt(
       "Please enter your password to re-authenticate:"
@@ -206,8 +214,6 @@ const AdminUsers = () => {
 
       const newUser = userCredential.user;
 
-      await sendEmailVerification(newUser);
-
       // Upload profile image
       const imageUrl = await uploadToCloudinary(profilePic as File);
       const nhisId = generateNHISId();
@@ -226,6 +232,8 @@ const AdminUsers = () => {
         wallet: 0,
         nin,
       });
+
+      await sendEmailVerification(newUser);
 
       // ✅ Re-sign in admin
       await signInWithEmailAndPassword(auth, adminEmail!, adminPassword!);
